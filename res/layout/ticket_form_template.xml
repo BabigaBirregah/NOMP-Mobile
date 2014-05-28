@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/label_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_title"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/text_hint_title"
+        android:inputType="text" >
+    </EditText>
+    
+    <TextView
+        android:id="@+id/label_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_description"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/text_hint_description"
+        android:inputType="text" >
+    </EditText>
+
+    <TextView
+        android:id="@+id/label_classification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_classification"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/button_classification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_button_classification" />
+
+    <TextView
+        android:id="@+id/label_target"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_target"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/button_target"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_button_target" />
+
+    <TextView
+        android:id="@+id/label_period"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_period"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+
+    <LinearLayout
+        android:id="@+id/button_group_period"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/button_period_from"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.45"
+            android:text="@string/text_button_period_from"
+             />
+        
+        <TextView
+        android:id="@+id/seperator_period"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/text_seperator_period" />
+
+        <Button
+            android:id="@+id/button_period_to"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.45"
+            android:text="@string/text_button_period_to" />
+        
+    </LinearLayout>
+    
+    <TextView
+        android:id="@+id/label_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_quantity"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+    
+    <EditText
+        android:id="@+id/quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/text_hint_quantity"
+        android:inputType="number" >
+    </EditText>
+    
+    <TextView
+        android:id="@+id/label_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_price"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+    
+    <EditText
+        android:id="@+id/price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/text_hint_price"
+        android:inputType="number" >
+    </EditText>
+    
+    <TextView
+        android:id="@+id/label_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_location"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+    
+    <!-- TODO: add auto-complete of location (Google map API) -->
+    <EditText
+        android:id="@+id/location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/text_hint_location"
+        android:inputType="text" >
+    </EditText>
+    
+    <TextView
+        android:id="@+id/label_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_photo"
+        android:textSize="20sp"
+        android:layout_marginTop="12dp" />
+    
+    <Button
+        android:id="@+id/button_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_button_photo" />
+
+</merge>

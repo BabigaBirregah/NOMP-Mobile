@@ -1,10 +1,14 @@
 package fr.utt.isi.nomp_mobile;
 
+import fr.utt.isi.nomp_mobile.R;
 import android.os.Bundle;
-import android.app.Activity;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
+	
+	public static final String TAG = "MainActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
