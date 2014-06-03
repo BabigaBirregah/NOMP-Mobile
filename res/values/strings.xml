@@ -27,5 +27,8 @@
     <string name="text_hint_location">Enter a location</string>
     <string name="text_label_photo">Photos</string>
     <string name="text_button_photo">Add photo</string>
+    
+    <!-- Action bar items -->
+    <string name="text_ticket_form_send">Send ticket</string>
 
 </resources>
