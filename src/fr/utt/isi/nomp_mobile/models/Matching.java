@@ -61,32 +61,71 @@ public class Matching extends BaseModel {
 	}
 
 	@Override
-	public List<?> list() {
+	public Matching retrieve(long matchingId) {
 		// prepare the query
-		String query = "SELECT * FROM " + NOMPDataContract.Matching.TABLE_NAME + " ORDER BY _id DESC";
+		String query = "SELECT * FROM " + NOMPDataContract.Matching.TABLE_NAME
+				+ " WHERE _id=" + matchingId + " ORDER BY _id DESC LIMIT 1";
 
 		SQLiteDatabase readable = this.getReadableDatabase();
 		Cursor c = readable.rawQuery(query, null);
-		
+
+		if (c.moveToFirst()) {
+			this.set_id(c.getInt(c
+					.getColumnIndex(NOMPDataContract.Matching._ID)));
+			this.setNompId(c.getString(c
+					.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_NOMP_ID)));
+			this.setSourceId(c.getString(c
+					.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_SOURCE_ID)));
+			this.setSourceType(c.getString(c
+					.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_SOURCE_TYPE)));
+			this.setMatch(c.getInt(c
+					.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_IS_MATCH)) == 1 ? true
+					: false);
+			this.setResults(c.getString(c
+					.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_RESULTS)));
+		}
+
+		c.close();
+		readable.close();
+
+		return this;
+	}
+
+	@Override
+	public List<?> list() {
+		// prepare the query
+		String query = "SELECT * FROM " + NOMPDataContract.Matching.TABLE_NAME
+				+ " ORDER BY _id DESC";
+
+		SQLiteDatabase readable = this.getReadableDatabase();
+		Cursor c = readable.rawQuery(query, null);
+
 		ArrayList<Matching> matchingList = new ArrayList<Matching>(c.getCount());
 		if (c.moveToFirst()) {
 			do {
 				Matching matching = new Matching(context);
-				
-				matching.set_id(c.getInt(c.getColumnIndex(NOMPDataContract.Matching._ID)));
-				matching.setNompId(c.getString(c.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_NOMP_ID)));
-				matching.setSourceId(c.getString(c.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_SOURCE_ID)));
-				matching.setSourceType(c.getString(c.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_SOURCE_TYPE)));
-				matching.setMatch(c.getInt(c.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_IS_MATCH)) == 1 ? true : false);
-				matching.setResults(c.getString(c.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_RESULTS)));
-				
+
+				matching.set_id(c.getInt(c
+						.getColumnIndex(NOMPDataContract.Matching._ID)));
+				matching.setNompId(c.getString(c
+						.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_NOMP_ID)));
+				matching.setSourceId(c.getString(c
+						.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_SOURCE_ID)));
+				matching.setSourceType(c.getString(c
+						.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_SOURCE_TYPE)));
+				matching.setMatch(c.getInt(c
+						.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_IS_MATCH)) == 1 ? true
+						: false);
+				matching.setResults(c.getString(c
+						.getColumnIndex(NOMPDataContract.Matching.COLUMN_NAME_RESULTS)));
+
 				matchingList.add(matching);
 				matching = null;
 			} while (c.moveToNext());
 		}
 		c.close();
 		readable.close();
-		
+
 		return matchingList;
 	}
 

@@ -1,5 +1,6 @@
 package fr.utt.isi.nomp_mobile.models;
 
+import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -40,13 +41,41 @@ public abstract class Type extends BaseModel {
 
 	public abstract String getColumnNameIsParent();
 
-	public Cursor listCursor() {
+	@Override
+	public Type retrieve(long typeId) {
 		// prepare the query
-		String query = "SELECT * FROM " + getTableName() + " ORDER BY _id DESC";
-		
+		String query = "SELECT * FROM " + getTableName() + " WHERE _id="
+				+ typeId + " ORDER BY _id DESC LIMIT 1";
+
 		SQLiteDatabase readable = this.getReadableDatabase();
 		Cursor c = readable.rawQuery(query, null);
-		
+
+		if (c.moveToFirst()) {
+			this.set_id(c.getInt(c.getColumnIndex(NOMPDataContract.Type._ID)));
+			this.setNompId(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_NOMP_ID)));
+			this.setParent(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_PARENT)));
+			this.setParentName(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_PARENT_NAME)));
+			this.setParent(c.getInt(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_IS_PARENT)) == 1 ? true
+					: false);
+		}
+
+		c.close();
+		readable.close();
+
+		return this;
+	}
+
+	protected Cursor listCursor() {
+		// prepare the query
+		String query = "SELECT * FROM " + getTableName() + " ORDER BY _id DESC";
+
+		SQLiteDatabase readable = this.getReadableDatabase();
+		Cursor c = readable.rawQuery(query, null);
+
 		readable.close();
 		return c;
 	}
@@ -79,7 +108,7 @@ public abstract class Type extends BaseModel {
 		SQLiteDatabase writable = this.getWritableDatabase();
 		int nbLines = writable.update(getTableName(), values, "_id=?",
 				new String[] { "" + _id });
-		
+
 		writable.close();
 		return nbLines;
 	}
@@ -89,7 +118,7 @@ public abstract class Type extends BaseModel {
 		SQLiteDatabase writable = this.getWritableDatabase();
 		int nbLines = writable.delete(getTableName(), "_id=?",
 				new String[] { "" + _id });
-		
+
 		writable.close();
 		return nbLines;
 	}

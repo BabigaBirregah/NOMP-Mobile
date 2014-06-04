@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <TextView
+        android:id="@+id/ticket_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="20sp"
+        android:textColor="#428bca" />
+
+    <TextView
+        android:id="@+id/ticket_classification_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/label_source"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_source"
+        android:textSize="14sp"
+        android:textColor="#428bca"
+        android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/ticket_source_actor_type_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/label_target"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_target"
+        android:textSize="14sp"
+        android:textColor="#428bca"
+        android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/ticket_target_actor_type_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/label_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_location"
+        android:textSize="14sp"
+        android:textColor="#428bca"
+        android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/ticket_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:id="@+id/ticket_text_group_period"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/ticket_period_text_from"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:text="@string/text_ticket_period_text_from"
+            android:textSize="12sp" />
+        
+        <TextView
+            android:id="@+id/ticket_start_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            android:text=""
+            android:textSize="12sp" />
+        
+        <TextView
+            android:id="@+id/ticket_period_text_to"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:text="@string/text_ticket_period_text_to"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/ticket_end_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            android:text=""
+            android:textSize="12sp" />
+    </LinearLayout>
+    
+    <TextView
+        android:id="@+id/label_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_quantity"
+        android:textSize="14sp"
+        android:textColor="#428bca"
+        android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/ticket_quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp" />
+    
+    <TextView
+        android:id="@+id/label_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_price"
+        android:textSize="14sp"
+        android:textColor="#428bca"
+        android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/ticket_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/label_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_label_description"
+        android:textSize="14sp"
+        android:textColor="#428bca"
+        android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/ticket_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="12sp" />
+
+</merge>
