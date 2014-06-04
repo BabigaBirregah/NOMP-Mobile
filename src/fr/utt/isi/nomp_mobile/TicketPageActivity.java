@@ -2,9 +2,9 @@ package fr.utt.isi.nomp_mobile;
 
 import fr.utt.isi.nomp_mobile.fragments.pages.NeedPageFragment;
 import android.os.Bundle;
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
@@ -30,7 +30,9 @@ public class TicketPageActivity extends ActionBarActivity {
 		}
 		ticketPageFragment.setArguments(args);
 		
-		
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+		transaction.replace(android.R.id.content, ticketPageFragment);
+		transaction.commit();
 	}
 
 	@Override

@@ -6,13 +6,10 @@ import java.util.GregorianCalendar;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.TicketPageActivity;
-import fr.utt.isi.nomp_mobile.fragments.pages.NeedPageFragment;
 import fr.utt.isi.nomp_mobile.models.Need;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
