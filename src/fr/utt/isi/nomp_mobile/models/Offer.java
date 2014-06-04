@@ -1,7 +1,6 @@
 package fr.utt.isi.nomp_mobile.models;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
@@ -23,6 +22,117 @@ public class Offer extends Ticket {
 		this.cost = 0;
 	}
 
+	/**
+	 * Constructor without _id, nompId and budget
+	 * 
+	 * @param context
+	 * @param name
+	 * @param classification
+	 * @param classificationName
+	 * @param sourceActorType
+	 * @param sourceActorTypeName
+	 * @param targetActorType
+	 * @param targetActorTypeName
+	 * @param contactPhone
+	 * @param contactMobile
+	 * @param contactEmail
+	 * @param quantity
+	 * @param description
+	 * @param keywords
+	 * @param address
+	 * @param geometry
+	 * @param creationDate
+	 * @param endDate
+	 * @param startDate
+	 * @param expirationDate
+	 * @param updateDate
+	 * @param isActive
+	 * @param statut
+	 * @param reference
+	 * @param user
+	 * @param matched
+	 */
+	public Offer(Context context, String name, String classification,
+			String classificationName, String sourceActorType,
+			String sourceActorTypeName, String targetActorType,
+			String targetActorTypeName, String contactPhone,
+			String contactMobile, String contactEmail, int quantity,
+			String description, String keywords, String address,
+			String geometry, String creationDate, String endDate,
+			String startDate, String expirationDate, String updateDate,
+			boolean isActive, int statut, String reference, String user,
+			String matched) {
+		super(context, name, classification, classificationName,
+				sourceActorType, sourceActorTypeName, targetActorType,
+				targetActorTypeName, contactPhone, contactMobile, contactEmail,
+				quantity, description, keywords, address, geometry,
+				creationDate, endDate, startDate, expirationDate, updateDate,
+				isActive, statut, reference, user, matched);
+		this.cost = 0;
+	}
+
+	public Offer(Context context, String name, String classification,
+			String classificationName, String sourceActorType,
+			String sourceActorTypeName, String targetActorType,
+			String targetActorTypeName, String contactPhone,
+			String contactMobile, String contactEmail, int quantity,
+			String description, String keywords, String address,
+			String geometry, String creationDate, String endDate,
+			String startDate, String expirationDate, String updateDate,
+			boolean isActive, int statut, String reference, String user,
+			String matched, int cost) {
+		super(context, name, classification, classificationName,
+				sourceActorType, sourceActorTypeName, targetActorType,
+				targetActorTypeName, contactPhone, contactMobile, contactEmail,
+				quantity, description, keywords, address, geometry,
+				creationDate, endDate, startDate, expirationDate, updateDate,
+				isActive, statut, reference, user, matched);
+		this.cost = cost;
+	}
+
+	public Offer(Context context, String nompId, String name,
+			String classification, String classificationName,
+			String sourceActorType, String sourceActorTypeName,
+			String targetActorType, String targetActorTypeName,
+			String contactPhone, String contactMobile, String contactEmail,
+			int quantity, String description, String keywords, String address,
+			String geometry, String creationDate, String endDate,
+			String startDate, String expirationDate, String updateDate,
+			boolean isActive, int statut, String reference, String user,
+			String matched, int cost) {
+		super(context, nompId, name, classification, classificationName,
+				sourceActorType, sourceActorTypeName, targetActorType,
+				targetActorTypeName, contactPhone, contactMobile, contactEmail,
+				quantity, description, keywords, address, geometry,
+				creationDate, endDate, startDate, expirationDate, updateDate,
+				isActive, statut, reference, user, matched);
+		this.cost = cost;
+	}
+
+	public Offer(Context context, long _id, String nompId, String name,
+			String classification, String classificationName,
+			String sourceActorType, String sourceActorTypeName,
+			String targetActorType, String targetActorTypeName,
+			String contactPhone, String contactMobile, String contactEmail,
+			int quantity, String description, String keywords, String address,
+			String geometry, String creationDate, String endDate,
+			String startDate, String expirationDate, String updateDate,
+			boolean isActive, int statut, String reference, String user,
+			String matched, int cost) {
+		super(context, _id, nompId, name, classification, classificationName,
+				sourceActorType, sourceActorTypeName, targetActorType,
+				targetActorTypeName, contactPhone, contactMobile, contactEmail,
+				quantity, description, keywords, address, geometry,
+				creationDate, endDate, startDate, expirationDate, updateDate,
+				isActive, statut, reference, user, matched);
+		this.cost = cost;
+	}
+
+	@Override
+	public String getTableName() {
+		return NOMPDataContract.Offer.TABLE_NAME;
+	}
+
 	@Override
 	public long store() {
 		// build the content values for insert
@@ -36,6 +146,18 @@ public class Offer extends Ticket {
 
 		writable.close();
 		return _id;
+	}
+
+	@Override
+	public Offer retrieve(long ticketId) {
+		Cursor c = retrieveBase(ticketId);
+
+		if (c.moveToFirst()) {
+			this.setCost(c.getInt(c
+					.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_COST)));
+		}
+
+		return this;
 	}
 
 	@Override
@@ -99,46 +221,16 @@ public class Offer extends Ticket {
 						.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_GEOMETRY)));
 
 				// DATES
-				String[] tmpCreationDate = c
-						.getString(
-								c.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_CREATION_DATE))
-						.split("-");
-				String[] tmpEndDate = c
-						.getString(
-								c.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_END_DATE))
-						.split("-");
-				String[] tmpStartDate = c
-						.getString(
-								c.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_START_DATE))
-						.split("-");
-				String[] tmpExpirationDate = c
-						.getString(
-								c.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_EXPIRATION_DATE))
-						.split("-");
-				String[] tmpUpdateDate = c
-						.getString(
-								c.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_UPDATE_DATE))
-						.split("-");
-				offer.setCreationDate(new GregorianCalendar(Integer
-						.parseInt(tmpCreationDate[0]), Integer
-						.parseInt(tmpCreationDate[1]), Integer
-						.parseInt(tmpCreationDate[2])));
-				offer.setEndDate(new GregorianCalendar(Integer
-						.parseInt(tmpEndDate[0]), Integer
-						.parseInt(tmpEndDate[1]), Integer
-						.parseInt(tmpEndDate[2])));
-				offer.setStartDate(new GregorianCalendar(Integer
-						.parseInt(tmpStartDate[0]), Integer
-						.parseInt(tmpStartDate[1]), Integer
-						.parseInt(tmpStartDate[2])));
-				offer.setExpirationDate(new GregorianCalendar(Integer
-						.parseInt(tmpExpirationDate[0]), Integer
-						.parseInt(tmpExpirationDate[1]), Integer
-						.parseInt(tmpExpirationDate[2])));
-				offer.setUpdateDate(new GregorianCalendar(Integer
-						.parseInt(tmpUpdateDate[0]), Integer
-						.parseInt(tmpUpdateDate[1]), Integer
-						.parseInt(tmpUpdateDate[2])));
+				offer.setCreationDate(c.getString(c
+						.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_CREATION_DATE)));
+				offer.setEndDate(c.getString(c
+						.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_END_DATE)));
+				offer.setStartDate(c.getString(c
+						.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_START_DATE)));
+				offer.setExpirationDate(c.getString(c
+						.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_EXPIRATION_DATE)));
+				offer.setUpdateDate(c.getString(c
+						.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_UPDATE_DATE)));
 
 				offer.setActive(c.getInt(c
 						.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_IS_ACTIVE)) == 1 ? true
@@ -176,9 +268,9 @@ public class Offer extends Ticket {
 		// TODO: check the content value input
 
 		SQLiteDatabase writable = this.getWritableDatabase();
-		int nbLines = writable.update(NOMPDataContract.Offer.TABLE_NAME, values,
-				"_id=?", new String[] { "" + _id });
-		
+		int nbLines = writable.update(NOMPDataContract.Offer.TABLE_NAME,
+				values, "_id=?", new String[] { "" + _id });
+
 		writable.close();
 		return nbLines;
 	}
@@ -186,9 +278,9 @@ public class Offer extends Ticket {
 	@Override
 	public int delete() {
 		SQLiteDatabase writable = this.getWritableDatabase();
-		int nbLines = writable.delete(NOMPDataContract.Offer.TABLE_NAME, "_id=?",
-				new String[] { "" + _id });
-		
+		int nbLines = writable.delete(NOMPDataContract.Offer.TABLE_NAME,
+				"_id=?", new String[] { "" + _id });
+
 		writable.close();
 		return nbLines;
 	}

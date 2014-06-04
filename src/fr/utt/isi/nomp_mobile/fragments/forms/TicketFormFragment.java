@@ -1,11 +1,17 @@
 package fr.utt.isi.nomp_mobile.fragments.forms;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import fr.utt.isi.nomp_mobile.R;
+import fr.utt.isi.nomp_mobile.models.Status;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -19,8 +25,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Toast;
 
-public class TicketFormFragment extends Fragment {
+public abstract class TicketFormFragment extends Fragment {
+
+	public static final String TAG = "TicketFormFragment";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,22 +61,124 @@ public class TicketFormFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.ticket_form, menu);
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle presses on the action bar items
-	    switch (item.getItemId()) {
-	        case R.id.action_send:
-	            //openSearch();
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
+		inflater.inflate(R.menu.ticket_form_fragment, menu);
 	}
 
-	private class ButtonPeriodOnClickListener implements OnClickListener {
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+		case R.id.action_send:
+			long ticketId = storeTicket();
+			if (ticketId != -1) {
+				displayTicket(ticketId);
+			} else {
+				Toast errorToast = Toast.makeText(getActivity(), "An error occured while adding ticket. Please check your information.", Toast.LENGTH_LONG);
+				errorToast.show();
+			}
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	protected ContentValues getBaseFieldValues() {
+		Activity context = getActivity();
+
+		EditText nameView = (EditText) context.findViewById(R.id.title);
+		String name = nameView.getText().toString();
+
+		EditText descriptionView = (EditText) context
+				.findViewById(R.id.description);
+		String description = descriptionView.getText().toString();
+
+		String keywords = "";
+
+		String classification = "s1d2f3";
+		String classificationName = "test";
+
+		String sourceActorType = "s1d2f3";
+		String sourceActorTypeName = "test";
+
+		String targetActorType = "s1d2f3";
+		String targetActorTypeName = "test";
+
+		String contactPhone = "+33674312347";
+		String contactMobile = "+33674312347";
+		String contactEmail = "yipeng.huang@utt.fr";
+
+		//Calendar creationDate = new GregorianCalendar();
+		//Calendar expirationDate = new GregorianCalendar();
+		//expirationDate.add(Calendar.MONTH, 3);
+		//Calendar updateDate = new GregorianCalendar();
+
+		// Dates
+		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+		Button buttonPeriodFrom = (Button) context
+				.findViewById(R.id.button_period_from);
+		String startDate = (String) buttonPeriodFrom.getText();
+		try {
+			startDate = dateFormat.format(dateFormat.parse(startDate));
+		} catch (ParseException e1) {
+			// TODO: handle error
+		}
+
+		Button buttonPeriodTo = (Button) context
+				.findViewById(R.id.button_period_to);
+		String endDate = (String) buttonPeriodTo.getText();
+		try {
+			endDate = dateFormat.format(dateFormat.parse(endDate));
+		} catch (ParseException e) {
+			// TODO: handle error
+		}
+
+		EditText quantityView = (EditText) context.findViewById(R.id.quantity);
+		int quantity = Integer.parseInt(quantityView.getText().toString());
+
+		String geometry = "4.08, 48.3";
+		String address = "sb 10000 troyes";
+		
+		boolean isActive = true;
+		int statut = Status.OPEN;
+		String reference = null;
+		String user = null;
+		String matched = null;
+		
+		ContentValues baseValues = new ContentValues();
+		baseValues.put("name", name);
+		baseValues.put("description", description);
+		baseValues.put("keywords", keywords);
+		baseValues.put("classification", classification);
+		baseValues.put("classificationName", classificationName);
+		baseValues.put("sourceActorType", sourceActorType);
+		baseValues.put("sourceActorTypeName", sourceActorTypeName);
+		baseValues.put("targetActorType", targetActorType);
+		baseValues.put("targetActorTypeName", targetActorTypeName);
+		baseValues.put("contactPhone", contactPhone);
+		baseValues.put("contactMobile", contactMobile);
+		baseValues.put("contactEmail", contactEmail);
+		//baseValues.put("creationDate", creationDate.toString());
+		baseValues.put("startDate", startDate);
+		baseValues.put("endDate", endDate);
+		//baseValues.put("expirationDate", expirationDate.toString());
+		//baseValues.put("updateDate", updateDate.toString());
+		baseValues.put("quantity", quantity);
+		baseValues.put("geometry", geometry);
+		baseValues.put("address", address);
+		baseValues.put("isActive", isActive);
+		baseValues.put("statut", statut);
+		baseValues.put("reference", reference);
+		baseValues.put("user", user);
+		baseValues.put("matched", matched);
+		
+		return baseValues;
+	}
+
+	public abstract long storeTicket();
+	
+	public abstract void displayTicket(long ticketId);
+
+	protected class ButtonPeriodOnClickListener implements OnClickListener {
 
 		private int reactionButtonId;
 		private DialogFragment datePickerFragment;
@@ -86,7 +198,7 @@ public class TicketFormFragment extends Fragment {
 	}
 
 	@SuppressLint("ValidFragment")
-	private class DatePickerFragment extends DialogFragment implements
+	protected class DatePickerFragment extends DialogFragment implements
 			DatePickerDialog.OnDateSetListener {
 
 		public static final String TAG = "DatePicker";
@@ -119,7 +231,8 @@ public class TicketFormFragment extends Fragment {
 			this.year = year;
 			this.month = month;
 			this.day = day;
-			Log.d(TAG, day + "-" + month + "-" + year);
+			Calendar date = new GregorianCalendar(year, month, day);
+			Log.d(TAG, date.toString());
 
 			Button reactionButton = (Button) getActivity().findViewById(
 					reactionButtonId);
@@ -127,7 +240,9 @@ public class TicketFormFragment extends Fragment {
 		}
 
 		public String getDate() {
-			return day + "-" + "0" + (month + 1) + "-" + year;
+			Calendar date = new GregorianCalendar(year, month, day);
+			DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG);
+			return dateFormat.format(date.getTime());
 		}
 
 	}
