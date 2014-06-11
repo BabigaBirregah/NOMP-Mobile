@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import fr.utt.isi.nomp_mobile.R;
-import fr.utt.isi.nomp_mobile.TicketPageActivity;
+import fr.utt.isi.nomp_mobile.activities.TicketPageActivity;
 import fr.utt.isi.nomp_mobile.models.Need;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -26,8 +26,6 @@ public class NeedFormFragment extends TicketFormFragment {
 			Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		
-		Log.d(TAG, "creating");
-
 		// update field label for budget
 		TextView priceLabelView = (TextView) view
 				.findViewById(R.id.label_price);

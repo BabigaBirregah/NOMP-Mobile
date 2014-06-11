@@ -2,10 +2,13 @@ package fr.utt.isi.nomp_mobile.fragments.forms;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import fr.utt.isi.nomp_mobile.R;
+import fr.utt.isi.nomp_mobile.models.ActorType;
+import fr.utt.isi.nomp_mobile.models.Classification;
 import fr.utt.isi.nomp_mobile.models.Status;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -23,9 +26,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 public abstract class TicketFormFragment extends Fragment {
@@ -37,6 +42,7 @@ public abstract class TicketFormFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -45,6 +51,73 @@ public abstract class TicketFormFragment extends Fragment {
 				false);
 
 		setHasOptionsMenu(true);
+
+		// classification update via api (just for dev)
+		Button buttonClassification = (Button) view
+				.findViewById(R.id.button_classification);
+		buttonClassification.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				Classification classification = new Classification(
+						getActivity());
+				classification.apiGet();
+			}
+
+		});
+
+		// classification drop down list
+		Classification classification = new Classification(getActivity());
+		ArrayList<Classification> parentClassifications = (ArrayList<Classification>) classification
+				.parentList();
+		ArrayList<String> classifications = new ArrayList<String>();
+		classifications.add("Select a classification");
+
+		for (int i = 0; i < parentClassifications.size(); i++) {
+			classifications.add(parentClassifications.get(i).getName());
+		}
+
+		// set adapter for spinner
+		ArrayAdapter<String> spinnerClassificationAdapter = new ArrayAdapter<String>(
+				getActivity(), android.R.layout.simple_spinner_item,
+				classifications);
+		spinnerClassificationAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		Spinner spinnerClassification = (Spinner) view
+				.findViewById(R.id.spinner_classification);
+		spinnerClassification.setAdapter(spinnerClassificationAdapter);
+
+		// actor type update via api (just for dev)
+		Button buttonTarget = (Button) view.findViewById(R.id.button_target);
+		buttonTarget.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				ActorType actorType = new ActorType(getActivity());
+				actorType.apiGet();
+			}
+
+		});
+
+		// classification drop down list
+		ActorType actorType = new ActorType(getActivity());
+		ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
+				.parentList();
+		ArrayList<String> actorTypes = new ArrayList<String>();
+		actorTypes.add("Select an actor type");
+
+		for (int i = 0; i < parentActorTypes.size(); i++) {
+			actorTypes.add(parentActorTypes.get(i).getName());
+		}
+
+		// set adapter for spinner
+		ArrayAdapter<String> spinnerTargetAdapter = new ArrayAdapter<String>(
+				getActivity(), android.R.layout.simple_spinner_item, actorTypes);
+		spinnerTargetAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		Spinner spinnerTarget = (Spinner) view
+				.findViewById(R.id.spinner_target);
+		spinnerTarget.setAdapter(spinnerTargetAdapter);
 
 		// assign actions on period buttons to show date picker
 		Button buttonPeriodFrom = (Button) view
@@ -61,7 +134,7 @@ public abstract class TicketFormFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.ticket_form_fragment, menu);
+		inflater.inflate(R.menu.fragment_ticket_form, menu);
 	}
 
 	@Override
@@ -73,7 +146,11 @@ public abstract class TicketFormFragment extends Fragment {
 			if (ticketId != -1) {
 				displayTicket(ticketId);
 			} else {
-				Toast errorToast = Toast.makeText(getActivity(), "An error occured while adding ticket. Please check your information.", Toast.LENGTH_LONG);
+				Toast errorToast = Toast
+						.makeText(
+								getActivity(),
+								"An error occured while adding ticket. Please check your information.",
+								Toast.LENGTH_LONG);
 				errorToast.show();
 			}
 			return true;
@@ -107,10 +184,10 @@ public abstract class TicketFormFragment extends Fragment {
 		String contactMobile = "+33674312347";
 		String contactEmail = "yipeng.huang@utt.fr";
 
-		//Calendar creationDate = new GregorianCalendar();
-		//Calendar expirationDate = new GregorianCalendar();
-		//expirationDate.add(Calendar.MONTH, 3);
-		//Calendar updateDate = new GregorianCalendar();
+		// Calendar creationDate = new GregorianCalendar();
+		// Calendar expirationDate = new GregorianCalendar();
+		// expirationDate.add(Calendar.MONTH, 3);
+		// Calendar updateDate = new GregorianCalendar();
 
 		// Dates
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
@@ -137,13 +214,13 @@ public abstract class TicketFormFragment extends Fragment {
 
 		String geometry = "4.08, 48.3";
 		String address = "sb 10000 troyes";
-		
+
 		boolean isActive = true;
 		int statut = Status.OPEN;
 		String reference = null;
 		String user = null;
 		String matched = null;
-		
+
 		ContentValues baseValues = new ContentValues();
 		baseValues.put("name", name);
 		baseValues.put("description", description);
@@ -157,11 +234,11 @@ public abstract class TicketFormFragment extends Fragment {
 		baseValues.put("contactPhone", contactPhone);
 		baseValues.put("contactMobile", contactMobile);
 		baseValues.put("contactEmail", contactEmail);
-		//baseValues.put("creationDate", creationDate.toString());
+		// baseValues.put("creationDate", creationDate.toString());
 		baseValues.put("startDate", startDate);
 		baseValues.put("endDate", endDate);
-		//baseValues.put("expirationDate", expirationDate.toString());
-		//baseValues.put("updateDate", updateDate.toString());
+		// baseValues.put("expirationDate", expirationDate.toString());
+		// baseValues.put("updateDate", updateDate.toString());
 		baseValues.put("quantity", quantity);
 		baseValues.put("geometry", geometry);
 		baseValues.put("address", address);
@@ -170,12 +247,12 @@ public abstract class TicketFormFragment extends Fragment {
 		baseValues.put("reference", reference);
 		baseValues.put("user", user);
 		baseValues.put("matched", matched);
-		
+
 		return baseValues;
 	}
 
 	public abstract long storeTicket();
-	
+
 	public abstract void displayTicket(long ticketId);
 
 	protected class ButtonPeriodOnClickListener implements OnClickListener {

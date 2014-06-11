@@ -2,11 +2,10 @@ package fr.utt.isi.nomp_mobile.activities;
 
 import fr.utt.isi.nomp_mobile.R;
 import android.os.Bundle;
-import android.app.Activity;
-import android.util.Log;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
-public class TicketFormActivity extends Activity {
+public class TicketFormActivity extends ActionBarActivity {
 	
 	public static final String TAG = "TicketFormActivity";
 
@@ -14,8 +13,6 @@ public class TicketFormActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ticket_form);
-		
-		Log.d(TAG, "creating");
 	}
 
 	@Override
