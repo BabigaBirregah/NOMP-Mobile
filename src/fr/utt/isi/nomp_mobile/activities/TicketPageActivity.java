@@ -1,5 +1,6 @@
-package fr.utt.isi.nomp_mobile;
+package fr.utt.isi.nomp_mobile.activities;
 
+import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.fragments.pages.NeedPageFragment;
 import android.os.Bundle;
 import android.content.Intent;

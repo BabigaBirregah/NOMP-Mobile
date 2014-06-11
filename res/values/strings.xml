@@ -8,11 +8,11 @@
     <string name="text_label_title">Title:</string>
     <string name="text_hint_title">Enter a title for the ticket</string>
     <string name="text_label_classification">Classification:</string>
-    <string name="text_button_classification">Select classification</string>
+    <string name="text_button_classification">Update classification</string>
     <string name="text_label_source">Source:</string>
     <string name="text_button_source">Select source actor</string>
     <string name="text_label_target">Target:</string>
-    <string name="text_button_target">Select target actor</string>
+    <string name="text_button_target">Update actor</string>
     <string name="text_label_period">Period:</string>
     <string name="text_button_period_from">Start date</string>
     <string name="text_button_period_to">End date</string>

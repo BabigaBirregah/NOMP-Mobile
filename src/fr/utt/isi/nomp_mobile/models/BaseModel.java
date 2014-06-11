@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public abstract class BaseModel extends SQLiteOpenHelper {
 	
-	public static final int DATABASE_VERSION = 3;
+	public static final int DATABASE_VERSION = 5;
 	
 	public static final String DATABASE_NAME = "nomp";
 	

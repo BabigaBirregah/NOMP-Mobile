@@ -5,8 +5,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 
 public abstract class Type extends BaseModel {
+	
+	public static final String TAG = "Type";
 
 	protected long _id;
 
@@ -68,16 +71,37 @@ public abstract class Type extends BaseModel {
 
 		return this;
 	}
+	
+	protected Cursor queryCursor(String query) {
+		SQLiteDatabase readable = this.getReadableDatabase();
+		Cursor c = readable.rawQuery(query, null);
+
+		//readable.close();
+		return c;
+	}
 
 	protected Cursor listCursor() {
 		// prepare the query
 		String query = "SELECT * FROM " + getTableName() + " ORDER BY _id DESC";
 
-		SQLiteDatabase readable = this.getReadableDatabase();
-		Cursor c = readable.rawQuery(query, null);
+		return queryCursor(query);
+	}
 
-		readable.close();
-		return c;
+	protected Cursor listParentCursor() {
+		// prepare the query
+		String query = "SELECT * FROM " + getTableName()
+				+ " WHERE is_parent=1 ORDER BY _id DESC";
+
+		return queryCursor(query);
+	}
+
+	protected Cursor listChildrenCursor(String parent) {
+		// prepare the query
+		String query = "SELECT * FROM " + getTableName()
+				+ " WHERE is_parent=0 AND parent='" + parent
+				+ "' ORDER BY _id DESC";
+
+		return queryCursor(query);
 	}
 
 	@Override
@@ -95,6 +119,54 @@ public abstract class Type extends BaseModel {
 		_id = writable.insert(getTableName(), null, mContentValues);
 
 		return _id;
+	}
+
+	public Type[] insertAll(Type[] types) {
+		// open database writable connection
+		SQLiteDatabase writable = this.getWritableDatabase();
+
+		// prepare the insert query
+		String query = "INSERT INTO " + getTableName()
+				+ " VALUES (?, ?, ?, ?, ?, ?)";
+
+		// compile the query
+		SQLiteStatement statement = writable.compileStatement(query);
+
+		// begin transaction
+		writable.beginTransaction();
+
+		for (int i = 0; i < types.length; i++) {
+			Type type = types[i];
+
+			// bind the fields to the statement
+			statement.clearBindings();
+			statement.bindString(2, type.getNompId());
+			statement.bindString(3, type.getName());
+
+			if (type.getParent() == null) {
+				statement.bindNull(4);
+			} else {
+				statement.bindString(4, type.getParent());
+			}
+
+			if (type.getParentName() == null) {
+				statement.bindNull(5);
+			} else {
+				statement.bindString(5, type.getParentName());
+			}
+
+			statement.bindLong(6, type.isParent() ? 1 : 0);
+			
+			// commit the execution of statement
+			types[i].set_id(statement.executeInsert());
+		}
+
+		// commit the transaction
+		writable.setTransactionSuccessful();
+		writable.endTransaction();
+		writable.close();
+
+		return types;
 	}
 
 	@Override
@@ -118,6 +190,14 @@ public abstract class Type extends BaseModel {
 		SQLiteDatabase writable = this.getWritableDatabase();
 		int nbLines = writable.delete(getTableName(), "_id=?",
 				new String[] { "" + _id });
+
+		writable.close();
+		return nbLines;
+	}
+
+	public int deleteAll() {
+		SQLiteDatabase writable = this.getWritableDatabase();
+		int nbLines = writable.delete(getTableName(), "1", null);
 
 		writable.close();
 		return nbLines;
