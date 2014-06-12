@@ -42,11 +42,6 @@ public abstract class TicketFormFragment extends Fragment {
 
 	public static final String TAG = "TicketFormFragment";
 
-	protected String classification;
-	protected String classificationName;
-	protected String targetActorType;
-	protected String targetActorTypeName;
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
