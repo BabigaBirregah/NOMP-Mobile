@@ -1,26 +1,39 @@
 package fr.utt.isi.nomp_mobile.fragments.forms;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.models.ActorType;
 import fr.utt.isi.nomp_mobile.models.Classification;
 import fr.utt.isi.nomp_mobile.models.Status;
 import fr.utt.isi.nomp_mobile.models.Type;
+import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +49,7 @@ import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public abstract class TicketFormFragment extends Fragment {
@@ -138,6 +152,127 @@ public abstract class TicketFormFragment extends Fragment {
 		buttonPeriodTo.setOnClickListener(new ButtonPeriodOnClickListener(
 				R.id.button_period_to));
 
+		// location service
+		LocationManager locationManager = (LocationManager) getActivity()
+				.getSystemService(Context.LOCATION_SERVICE);
+
+		// define the listener
+		LocationListener locationListener = new LocationListener() {
+
+			@Override
+			public void onLocationChanged(Location location) {
+				double lat = location.getLatitude();
+				double lon = location.getLongitude();
+				Log.d(TAG, "lat=" + lat + ", lon=" + lon);
+				try {
+					List<Address> addressList = new Geocoder(getActivity())
+							.getFromLocation(lat, lon, 1);
+					Log.d(TAG, "address: " + addressList.get(0).toString());
+				} catch (IOException e) {
+					Toast errorToast = Toast.makeText(getActivity(),
+							"Unable to geocode from location.",
+							Toast.LENGTH_LONG);
+					errorToast.show();
+				}
+			}
+
+			@Override
+			public void onProviderDisabled(String provider) {
+
+			}
+
+			@Override
+			public void onProviderEnabled(String provider) {
+
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {
+
+			}
+
+		};
+
+		String locationProvider = LocationManager.GPS_PROVIDER;
+
+		locationManager.requestLocationUpdates(locationProvider, 0, 0,
+				locationListener);
+
+		Location lastKnownLocation = locationManager
+				.getLastKnownLocation(locationProvider);
+
+		new RequestTask(getActivity(), "GET") {
+
+			@Override
+			public void onPostExecute(String result) {
+				if (result == null) {
+					Toast errorToast = Toast.makeText(getActivity(),
+							"Some error occurs during request for address.",
+							Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.MAL_FORMED_URL_EXCEPTION)) {
+					Toast errorToast = Toast.makeText(getActivity(),
+							"Request server not found for address.",
+							Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.IO_EXCEPTION)) {
+					Toast errorToast = Toast
+							.makeText(
+									getActivity(),
+									"Unable to retrieve address from server. Please try again later.",
+									Toast.LENGTH_LONG);
+					errorToast.show();
+				} else {
+					try {
+						JSONObject jsonObject = new JSONObject(result);
+
+						// check if the result is ok
+						if (jsonObject.has("results")
+								&& jsonObject.has("status")
+								&& jsonObject.getString("status").equals("OK")) {
+
+							// get the first result in list
+							JSONObject address = new JSONArray(
+									jsonObject.getString("results"))
+									.getJSONObject(0);
+
+							if (address.has("formatted_address")) {
+								// get the formatted address
+								EditText addressView = (EditText) getActivity()
+										.findViewById(R.id.location);
+								addressView.setText(address
+										.getString("formatted_address"));
+							}
+						} else {
+							Toast errorToast = Toast.makeText(getActivity(),
+									"Failed to get the address.",
+									Toast.LENGTH_LONG);
+							errorToast.show();
+						}
+					} catch (JSONException e) {
+						Toast errorToast = Toast.makeText(getActivity(),
+								"Failed to parse response from server.",
+								Toast.LENGTH_LONG);
+						errorToast.show();
+					}
+				}
+			}
+
+		}.execute(String
+				.format(Locale.ENGLISH,
+						"http://maps.googleapis.com/maps/api/geocode/json?latlng=%1$f,%2$f&sensor=false",
+						lastKnownLocation.getLatitude(),
+						lastKnownLocation.getLongitude()));
+
+		// register the location coordinates
+		TextView geometryView = (TextView) view.findViewById(R.id.geometry);
+		geometryView.setText(lastKnownLocation.getLatitude() + ","
+				+ lastKnownLocation.getLongitude());
+
+		// stop tracking the location service
+		locationManager.removeUpdates(locationListener);
+
 		return view;
 	}
 
@@ -237,8 +372,10 @@ public abstract class TicketFormFragment extends Fragment {
 		EditText quantityView = (EditText) context.findViewById(R.id.quantity);
 		int quantity = Integer.parseInt(quantityView.getText().toString());
 
-		String geometry = "4.08, 48.3";
-		String address = "sb 10000 troyes";
+		TextView geometryView = (TextView) context.findViewById(R.id.geometry);
+		String geometry = (String) geometryView.getText();
+		EditText addressView = (EditText) context.findViewById(R.id.location);
+		String address = addressView.getText().toString();
 
 		boolean isActive = true;
 		int statut = Status.OPEN;
@@ -350,7 +487,7 @@ public abstract class TicketFormFragment extends Fragment {
 				long id) {
 			Spinner subTypeSpinner = (Spinner) getActivity().findViewById(
 					reactionSpinnerId);
-			
+
 			// get the type item
 			Type typeItem = (Type) parent.getItemAtPosition(pos);
 
