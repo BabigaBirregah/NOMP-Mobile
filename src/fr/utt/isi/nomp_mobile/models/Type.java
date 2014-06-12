@@ -10,6 +10,9 @@ import android.database.sqlite.SQLiteStatement;
 public abstract class Type extends BaseModel {
 	
 	public static final String TAG = "Type";
+	
+	public static final String TYPE_CLASSIFICATION = "classification";
+	public static final String TYPE_ACTOR_TYPE = "actor_type";
 
 	protected long _id;
 
@@ -43,6 +46,11 @@ public abstract class Type extends BaseModel {
 	public abstract String getColumnNameParentName();
 
 	public abstract String getColumnNameIsParent();
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 
 	@Override
 	public Type retrieve(long typeId) {

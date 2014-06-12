@@ -23,13 +23,6 @@ public class Classification extends Type {
 		super(context);
 	}
 
-	@Override
-	public String toString() {
-		return "Classification (id=" + _id + ", nompId=" + nompId + ", name="
-				+ name + ", parent=" + parent + ", parentName=" + parentName
-				+ ", isParent=" + isParent + ")";
-	}
-
 	public void apiGet() {
 		new RequestTask(context, "GET") {
 

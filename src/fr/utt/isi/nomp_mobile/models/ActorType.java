@@ -20,13 +20,6 @@ public class ActorType extends Type {
 	public ActorType(Context context) {
 		super(context);
 	}
-	
-	@Override
-	public String toString() {
-		return "Actor type (id=" + _id + ", nompId=" + nompId + ", name="
-				+ name + ", parent=" + parent + ", parentName=" + parentName
-				+ ", isParent=" + isParent + ")";
-	}
 
 	public void apiGet() {
 		new RequestTask(context, "GET") {
