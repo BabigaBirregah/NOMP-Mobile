@@ -13,11 +13,14 @@ import java.util.Locale;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 public abstract class RequestTask extends AsyncTask<String, Void, String> {
 	
 	public static final String TAG = "RequestTask";
+	
+	public static final String MAL_FORMED_URL_EXCEPTION = "MalformedURLException";
+	
+	public static final String IO_EXCEPTION = "IOException";
 	
 	private Context context;
 	
@@ -58,14 +61,10 @@ public abstract class RequestTask extends AsyncTask<String, Void, String> {
 			
 			return stringBuilder.toString();
 		} catch (MalformedURLException e) {
-			Toast errorToast = Toast.makeText(context, "Request server not found.", Toast.LENGTH_LONG);
-			errorToast.show();
+			return MAL_FORMED_URL_EXCEPTION;
 		} catch (IOException e) {
-			Toast errorToast = Toast.makeText(context, "Unable to retrieve data from server. Please try again later.", Toast.LENGTH_LONG);
-			errorToast.show();
+			return IO_EXCEPTION;
 		}
-		
-		return null;
 	}
 	
 	/**

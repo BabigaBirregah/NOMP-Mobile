@@ -1,16 +1,21 @@
 package fr.utt.isi.nomp_mobile.models;
 
+import java.util.Date;
+
+import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.util.Log;
 
 public abstract class Type extends BaseModel {
-	
+
 	public static final String TAG = "Type";
-	
+
 	public static final String TYPE_CLASSIFICATION = "classification";
 	public static final String TYPE_ACTOR_TYPE = "actor_type";
 
@@ -35,6 +40,10 @@ public abstract class Type extends BaseModel {
 		this.isParent = false;
 	}
 
+	public abstract void apiGet();
+
+	public abstract String getType();
+
 	public abstract String getTableName();
 
 	public abstract String getColumnNameNompId();
@@ -46,7 +55,7 @@ public abstract class Type extends BaseModel {
 	public abstract String getColumnNameParentName();
 
 	public abstract String getColumnNameIsParent();
-	
+
 	@Override
 	public String toString() {
 		return name;
@@ -79,12 +88,35 @@ public abstract class Type extends BaseModel {
 
 		return this;
 	}
-	
+
 	protected Cursor queryCursor(String query) {
+		// check update
+		SharedPreferences typeSettings = null;
+		if (getType().equals(TYPE_CLASSIFICATION)) {
+			typeSettings = context.getSharedPreferences(
+					Config.PREF_NAME_CLASSIFICATION, Context.MODE_PRIVATE);
+		} else if (getType().equals(TYPE_ACTOR_TYPE)) {
+			typeSettings = context.getSharedPreferences(
+					Config.PREF_NAME_ACTOR_TYPE, Context.MODE_PRIVATE);
+		}
+
+		if (typeSettings != null) {
+			boolean isUpdated = typeSettings.getBoolean(
+					Config.PREF_KEY_TYPE_IS_UPDATED, false);
+			Log.d(TAG, "is updated? " + isUpdated);
+			long updatedAt = typeSettings.getLong(
+					Config.PREF_KEY_TYPE_UPDATED_AT, 0);
+			long interval = new Date().getTime() - updatedAt;
+			
+			if (!isUpdated || interval > Config.NOMP_API_UPDATE_INTERVAL * 24 * 60 * 60 * 1000) {
+				apiGet();
+			}
+		}
+
 		SQLiteDatabase readable = this.getReadableDatabase();
 		Cursor c = readable.rawQuery(query, null);
 
-		//readable.close();
+		// readable.close();
 		return c;
 	}
 
@@ -164,7 +196,7 @@ public abstract class Type extends BaseModel {
 			}
 
 			statement.bindLong(6, type.isParent() ? 1 : 0);
-			
+
 			// commit the execution of statement
 			types[i].set_id(statement.executeInsert());
 		}
