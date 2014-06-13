@@ -1,6 +1,5 @@
 package fr.utt.isi.nomp_mobile.fragments.forms;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,15 +24,13 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -59,6 +56,8 @@ public abstract class TicketFormFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		checkGPS();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -158,21 +157,12 @@ public abstract class TicketFormFragment extends Fragment {
 
 		// define the listener
 		LocationListener locationListener = new LocationListener() {
-
+			
 			@Override
 			public void onLocationChanged(Location location) {
-				double lat = location.getLatitude();
-				double lon = location.getLongitude();
-				Log.d(TAG, "lat=" + lat + ", lon=" + lon);
-				try {
-					List<Address> addressList = new Geocoder(getActivity())
-							.getFromLocation(lat, lon, 1);
-					Log.d(TAG, "address: " + addressList.get(0).toString());
-				} catch (IOException e) {
-					Toast errorToast = Toast.makeText(getActivity(),
-							"Unable to geocode from location.",
-							Toast.LENGTH_LONG);
-					errorToast.show();
+				if (location != null) {
+					populateAddressByLocation(location);
+					populateGeometryByLocation(location);
 				}
 			}
 
@@ -201,7 +191,63 @@ public abstract class TicketFormFragment extends Fragment {
 
 		Location lastKnownLocation = locationManager
 				.getLastKnownLocation(locationProvider);
+		
+		if (lastKnownLocation == null) {
+			locationProvider = LocationManager.NETWORK_PROVIDER;
+			
+			lastKnownLocation = locationManager
+					.getLastKnownLocation(locationProvider);
+			
+			locationManager.requestLocationUpdates(locationProvider, 0, 0,
+					locationListener);
+		}
 
+		if (lastKnownLocation != null) {
+			//Log.d(TAG, "lat=" + lastKnownLocation.getLatitude() + ", lon=" + lastKnownLocation.getLongitude());
+			populateAddressByLocation(lastKnownLocation);
+			populateGeometryByLocation(lastKnownLocation, view);
+		}
+
+		// stop tracking the location service
+		locationManager.removeUpdates(locationListener);
+
+		return view;
+	}
+	
+	public void checkGPS() {
+		LocationManager locationManager = (LocationManager) getActivity()
+				.getSystemService(Context.LOCATION_SERVICE);
+		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			// notice user to turn on the GPS
+			// TODO: make an alert dialog, if cancelled, return to home activity (eventually it will be a list)
+			Toast gpsRequiredToast = Toast.makeText(getActivity(), "Application need GPS service for localization. Please turn on the GPS service.", Toast.LENGTH_LONG);
+			gpsRequiredToast.show();
+			
+			// redirect to the system settings of toggling GPS service
+			startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
+		}
+	}
+	
+	public void populateGeometryByLocation(Location location) {
+		populateGeometryByLocation(location, null);
+	}
+	
+	public void populateGeometryByLocation(Location location, View view) {
+		if (location == null) {
+			return;
+		}
+		
+		//Log.d(TAG, "\tpopulate: lat=" + location.getLatitude() + ", lon=" + location.getLongitude());
+		TextView geometryView = (TextView) (view == null ? getActivity().findViewById(R.id.geometry) : view.findViewById(R.id.geometry));
+		geometryView.setText(location.getLatitude() + ","
+				+ location.getLongitude());
+	}
+	
+	public void populateAddressByLocation(Location location) {
+		if (location == null) {
+			return;
+		}
+		
 		new RequestTask(getActivity(), "GET") {
 
 			@Override
@@ -262,18 +308,15 @@ public abstract class TicketFormFragment extends Fragment {
 		}.execute(String
 				.format(Locale.ENGLISH,
 						"http://maps.googleapis.com/maps/api/geocode/json?latlng=%1$f,%2$f&sensor=false",
-						lastKnownLocation.getLatitude(),
-						lastKnownLocation.getLongitude()));
-
-		// register the location coordinates
-		TextView geometryView = (TextView) view.findViewById(R.id.geometry);
-		geometryView.setText(lastKnownLocation.getLatitude() + ","
-				+ lastKnownLocation.getLongitude());
-
-		// stop tracking the location service
-		locationManager.removeUpdates(locationListener);
-
-		return view;
+						location.getLatitude(),
+						location.getLongitude()));
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		checkGPS();
 	}
 
 	@Override
