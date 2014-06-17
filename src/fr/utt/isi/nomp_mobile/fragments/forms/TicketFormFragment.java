@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONArray;
@@ -13,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fr.utt.isi.nomp_mobile.R;
+import fr.utt.isi.nomp_mobile.adapters.TypeSpinnerArrayAdapter;
 import fr.utt.isi.nomp_mobile.models.ActorType;
 import fr.utt.isi.nomp_mobile.models.Classification;
 import fr.utt.isi.nomp_mobile.models.Status;
@@ -40,9 +40,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -459,56 +457,6 @@ public abstract class TicketFormFragment extends Fragment {
 	public abstract long storeTicket();
 
 	public abstract void displayTicket(long ticketId);
-
-	protected class TypeSpinnerArrayAdapter extends ArrayAdapter<Type> {
-
-		private List<?> objects;
-
-		public TypeSpinnerArrayAdapter(Context context, int resource,
-				List<?> objects) {
-			super(context, resource);
-			this.objects = objects;
-		}
-
-		@Override
-		public int getCount() {
-			return objects.size();
-		}
-
-		@Override
-		public Type getItem(int position) {
-			return (Type) objects.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return ((Type) objects.get(position)).get_id();
-		}
-
-		@Override
-		public int getPosition(Type type) {
-			return objects.indexOf(type);
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = convertView;
-
-			if (view == null) {
-				LayoutInflater inflater = (LayoutInflater) getContext()
-						.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				view = inflater.inflate(
-						android.R.layout.simple_spinner_dropdown_item, null);
-			}
-
-			CheckedTextView textView = (CheckedTextView) view
-					.findViewById(android.R.id.text1);
-			textView.setText(((Type) objects.get(position)).getName());
-
-			return view;
-		}
-
-	}
 
 	protected class TypeSpinnerOnItemSelectedListener implements
 			OnItemSelectedListener {
