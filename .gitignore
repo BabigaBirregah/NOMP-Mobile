@@ -213,3 +213,14 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+
+###############
+## Custome Android
+###############
+
+# Project properties
+project.properties
+
+# Auto-generated files
+gen/
