@@ -42,6 +42,20 @@
     <string name="text_hint_location">Enter a location</string>
     <string name="text_label_photo">Photos</string>
     <string name="text_button_photo">Add photo</string>
+    
+    <!-- Error message for sign in form validation -->
+    <string name="text_error_full_name">Full name required</string>
+    <string name="text_error_email">Email address required</string>
+    <string name="text_error_email_format">Email address is malformed</string>
+    <string name="text_error_username">Username required</string>
+    <string name="text_error_password">Password required</string>
+    
+    <!-- Error message for ticket form validation -->
+    <string name="text_error_title">Ticket title required</string>
+    <string name="text_error_period_from">Start date required</string>
+    <string name="text_error_period_to">End date required</string>
+    <string name="text_error_location">Address required</string>
+    <string name="text_error_description">Description required</string>
 
     <!-- Text for ticket page -->
     <string name="text_ticket_period_text_from">From </string>

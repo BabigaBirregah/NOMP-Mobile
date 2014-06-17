@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
@@ -109,23 +110,37 @@ public class SignUpActivity extends ActionBarActivity implements
 		EditText viewPassword = (EditText) this.findViewById(R.id.password);
 		
 		if (viewFullName.getText().toString().equals("")) {
-			// TODO: highlight the view
+			((TextView) this.findViewById(R.id.error_full_name)).setVisibility(View.VISIBLE);
 			return false;
+		} else {
+			((TextView) this.findViewById(R.id.error_full_name)).setVisibility(View.GONE);
 		}
 		
 		if (viewEmail.getText().toString().equals("")) {
-			// TODO: highlight the view
+			((TextView) this.findViewById(R.id.error_email)).setVisibility(View.VISIBLE);
+			((TextView) this.findViewById(R.id.error_email_format)).setVisibility(View.GONE);
 			return false;
+		} else if (!viewEmail.getText().toString().matches("^.+@.+$")) {
+			((TextView) this.findViewById(R.id.error_email)).setVisibility(View.GONE);
+			((TextView) this.findViewById(R.id.error_email_format)).setVisibility(View.VISIBLE);
+			return false;
+		} else {
+			((TextView) this.findViewById(R.id.error_email)).setVisibility(View.GONE);
+			((TextView) this.findViewById(R.id.error_email_format)).setVisibility(View.GONE);
 		}
 		
 		if (viewUsername.getText().toString().equals("")) {
-			// TODO: highlight the view
+			((TextView) this.findViewById(R.id.error_username)).setVisibility(View.VISIBLE);
 			return false;
+		} else {
+			((TextView) this.findViewById(R.id.error_username)).setVisibility(View.GONE);
 		}
 		
 		if (viewPassword.getText().toString().equals("")) {
-			// TODO: highlight the view
+			((TextView) this.findViewById(R.id.error_password)).setVisibility(View.VISIBLE);
 			return false;
+		} else {
+			((TextView) this.findViewById(R.id.error_password)).setVisibility(View.GONE);
 		}
 
 		return true;
