@@ -140,6 +140,7 @@ public abstract class Type extends BaseModel {
 		String query = "SELECT * FROM " + getTableName()
 				+ " WHERE is_parent=0 AND parent='" + parent
 				+ "' ORDER BY _id DESC";
+		Log.d(TAG, query);
 
 		return queryCursor(query);
 	}

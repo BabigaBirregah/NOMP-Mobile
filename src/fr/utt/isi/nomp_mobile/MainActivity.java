@@ -1,6 +1,7 @@
 package fr.utt.isi.nomp_mobile;
 
 import fr.utt.isi.nomp_mobile.R;
+import fr.utt.isi.nomp_mobile.activities.SignUpActivity;
 import fr.utt.isi.nomp_mobile.activities.TicketFormActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,7 +17,7 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		Intent intent = new Intent(this, TicketFormActivity.class);
+		Intent intent = new Intent(this, SignUpActivity.class);
 		startActivity(intent);
 	}
 
