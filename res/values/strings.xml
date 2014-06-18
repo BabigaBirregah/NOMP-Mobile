@@ -4,6 +4,11 @@
     <string name="app_name">NOMP-Mobile</string>
     <string name="action_settings">Settings</string>
     
+    <!-- Text for login form -->
+    <string name="text_button_login">Login</string>
+    <string name="text_or"> OR </string>
+    <string name="text_button_sign_up">Sign up</string>
+    
     <!-- Text for sign up form -->
     <string name="text_label_full_name">Full name:</string>
     <string name="text_hint_full_name">Enter your full name</string>
@@ -42,6 +47,9 @@
     <string name="text_hint_location">Enter a location</string>
     <string name="text_label_photo">Photos</string>
     <string name="text_button_photo">Add photo</string>
+    
+    <!-- Error message for login -->
+    <string name="error_incorrect_email">Incorrect email address</string>
     
     <!-- Error message for sign in form validation -->
     <string name="text_error_full_name">Full name required</string>
