@@ -42,6 +42,12 @@
             android:label="@string/title_activity_sign_up"
             android:theme="@style/Theme.AppCompat.Light" >
         </activity>
+        <activity
+            android:name="fr.utt.isi.nomp_mobile.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
     </application>
 
 </manifest>
