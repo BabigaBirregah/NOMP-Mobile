@@ -8,9 +8,4 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
     
-    <fragment android:name="fr.utt.isi.nomp_mobile.fragments.forms.NeedFormFragment"
-          android:id="@+id/need_form_fragment"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent" />
-
 </RelativeLayout>
