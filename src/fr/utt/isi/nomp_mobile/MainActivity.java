@@ -1,6 +1,7 @@
 package fr.utt.isi.nomp_mobile;
 
 import fr.utt.isi.nomp_mobile.R;
+import fr.utt.isi.nomp_mobile.activities.LoginActivity;
 import fr.utt.isi.nomp_mobile.config.Config;
 import android.content.Context;
 import android.content.Intent;

@@ -43,7 +43,7 @@
             android:theme="@style/Theme.AppCompat.Light" >
         </activity>
         <activity
-            android:name="fr.utt.isi.nomp_mobile.LoginActivity"
+            android:name="fr.utt.isi.nomp_mobile.activities.LoginActivity"
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.AppCompat.Light"
             android:windowSoftInputMode="adjustResize|stateVisible" >
