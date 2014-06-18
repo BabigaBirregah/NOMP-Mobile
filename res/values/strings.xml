@@ -49,6 +49,7 @@
     <string name="text_error_email_format">Email address is malformed</string>
     <string name="text_error_username">Username required</string>
     <string name="text_error_password">Password required</string>
+    <string name="text_error_source">Actor type required</string>
     
     <!-- Error message for ticket form validation -->
     <string name="text_error_title">Ticket title required</string>

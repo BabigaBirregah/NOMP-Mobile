@@ -61,6 +61,11 @@ public abstract class Type extends BaseModel {
 		return name;
 	}
 
+	public String toJSONString() {
+		return "{" + "\"_id\":\"" + nompId + "\",\"name\":\"" + name + "\""
+				+ "}";
+	}
+
 	@Override
 	public Type retrieve(long typeId) {
 		// prepare the query
@@ -103,12 +108,13 @@ public abstract class Type extends BaseModel {
 		if (typeSettings != null) {
 			boolean isUpdated = typeSettings.getBoolean(
 					Config.PREF_KEY_TYPE_IS_UPDATED, false);
-			Log.d(TAG, "is updated? " + isUpdated);
 			long updatedAt = typeSettings.getLong(
 					Config.PREF_KEY_TYPE_UPDATED_AT, 0);
-			long interval = new Date().getTime() - updatedAt;
-			
-			if (!isUpdated || interval > Config.NOMP_API_UPDATE_INTERVAL * 24 * 60 * 60 * 1000) {
+			long interval = (new Date().getTime() - updatedAt) / 1000;
+			double margin = Config.NOMP_API_UPDATE_INTERVAL * 24 * 60 * 60;
+
+			if (!isUpdated || interval > margin) {
+				Log.d(TAG, "update");
 				apiGet();
 			}
 		}

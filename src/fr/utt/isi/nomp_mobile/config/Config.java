@@ -11,10 +11,19 @@ public class Config {
 	// names
 	public static final String PREF_NAME_CLASSIFICATION = "pref_classification";
 	public static final String PREF_NAME_ACTOR_TYPE = "pref_actor_type";
+	public static final String PREF_NAME_USER = "pref_user";
 	
 	// keys
 	public static final String PREF_KEY_TYPE_IS_UPDATED = "is_updated";
 	public static final String PREF_KEY_TYPE_UPDATED_AT = "updated_at";
+	public static final String PREF_KEY_USER_IS_LOGGED = "is_logged";
+	public static final String PREF_KEY_USER_NOMP_ID = "nomp_id";
+	public static final String PREF_KEY_USER_NAME = "name";
+	public static final String PREF_KEY_USER_EMAIL = "email";
+	public static final String PREF_KEY_USER_USERNAME = "username";
+	public static final String PREF_KEY_USER_PASSWORD = "password";
+	public static final String PREF_KEY_USER_ACTOR_TYPE = "actor_type";
+	public static final String PREF_KEY_USER_ACTOR_TYPE_NAME = "actor_type_name";
 	/* ******************************************************** */
 
 	private Config() {

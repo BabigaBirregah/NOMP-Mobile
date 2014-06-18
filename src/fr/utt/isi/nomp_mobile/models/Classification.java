@@ -48,6 +48,10 @@ public class Classification extends Type {
 									"Unable to retrieve data from server. Please try again later.",
 									Toast.LENGTH_LONG);
 					errorToast.show();
+				} else if (result.equals(RequestTask.REQUEST_ERROR)) {
+					Toast errorToast = Toast.makeText(context,
+							"Request failed.", Toast.LENGTH_LONG);
+					errorToast.show();
 				} else {
 
 					try {
