@@ -21,10 +21,12 @@ import fr.utt.isi.nomp_mobile.models.Type;
 import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -53,8 +55,13 @@ import android.widget.Toast;
 public abstract class TicketFormFragment extends Fragment {
 
 	public static final String TAG = "TicketFormFragment";
-	
+
 	private static boolean isGPSChecked = true;
+
+	private static String road = "";
+	private static String postalCode = "";
+	private static String city = "";
+	private static String country = "";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -151,15 +158,16 @@ public abstract class TicketFormFragment extends Fragment {
 				R.id.button_period_from));
 		buttonPeriodTo.setOnClickListener(new ButtonPeriodOnClickListener(
 				R.id.button_period_to));
-		
+
 		// location
 		SharedPreferences localizationPrefereces = getActivity()
 				.getSharedPreferences(Config.PREF_NAME_LOCALIZATION,
 						Context.MODE_PRIVATE);
-		if (localizationPrefereces.getBoolean(Config.PREF_KEY_LOCALIZATION_GPS, true)) {
+		if (localizationPrefereces.getBoolean(Config.PREF_KEY_LOCALIZATION_GPS,
+				true)) {
 			populateLocationByGPS(view);
 		}
-		
+
 		ImageView gpsLoader = (ImageView) view.findViewById(R.id.gps_loader);
 		gpsLoader.setClickable(true);
 		gpsLoader.setOnClickListener(new OnClickListener() {
@@ -168,7 +176,75 @@ public abstract class TicketFormFragment extends Fragment {
 			public void onClick(View v) {
 				populateLocationByGPS(null);
 			}
-			
+
+		});
+
+		// address pop-up
+		EditText addressView = (EditText) view.findViewById(R.id.location);
+		addressView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// build a pop-up dialog for address input
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						getActivity());
+
+				// get layout inflater
+				LayoutInflater inflater = getActivity().getLayoutInflater();
+
+				// set a layout
+				builder.setView(postInflateDialogView(inflater.inflate(
+						R.layout.dialog_address, null)));
+				
+				builder.setTitle(R.string.text_address_dialog_title);
+
+				// set a positive button to submit the input address
+				builder.setPositiveButton(
+						R.string.text_address_dialog_button_positive,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								AlertDialog dialogView = (AlertDialog) dialog;
+
+								road = ((EditText) dialogView
+										.findViewById(R.id.address_dialog_road))
+										.getText().toString();
+								postalCode = ((EditText) dialogView
+										.findViewById(R.id.address_dialog_postal_code))
+										.getText().toString();
+								city = ((EditText) dialogView
+										.findViewById(R.id.address_dialog_city))
+										.getText().toString();
+								country = ((EditText) dialogView
+										.findViewById(R.id.address_dialog_country))
+										.getText().toString();
+
+								((EditText) getActivity().findViewById(
+										R.id.location)).setText(road + ", "
+										+ postalCode + " " + city + ", "
+										+ country);
+								dialog.dismiss();
+							}
+
+						});
+
+				// set a negative button to cancel the dialog
+				builder.setNegativeButton(
+						R.string.text_address_dialog_button_negative,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								dialog.cancel();
+							}
+						});
+
+				builder.create().show();
+			}
+
 		});
 
 		return view;
@@ -179,7 +255,7 @@ public abstract class TicketFormFragment extends Fragment {
 				.getSystemService(Context.LOCATION_SERVICE);
 		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			isGPSChecked = false;
-			
+
 			// notice user to turn on the GPS
 			// TODO: make an alert dialog, if cancelled, return to home activity
 			// (eventually it will be a list)
@@ -201,7 +277,7 @@ public abstract class TicketFormFragment extends Fragment {
 
 	public void populateLocationByGPS(View view) {
 		checkGPS();
-		
+
 		// location service
 		LocationManager locationManager = (LocationManager) getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
@@ -327,6 +403,25 @@ public abstract class TicketFormFragment extends Fragment {
 										.findViewById(R.id.location);
 								addressView.setText(address
 										.getString("formatted_address"));
+								
+								// get address components
+								JSONArray addressComponents = new JSONArray(address.getString("address_components"));
+								for (int i = 0; i < addressComponents.length(); i++) {
+									JSONObject addressComponent = addressComponents.getJSONObject(i);
+									JSONArray componentTypes = new JSONArray(addressComponent.getString("types"));
+									if (componentTypes.length() > 0) {
+										String componentType = componentTypes.getString(0);
+										if (componentType.equals("route")) {
+											road = addressComponent.getString("long_name");
+										} else if (componentType.equals("postal_code")) {
+											postalCode = addressComponent.getString("long_name");
+										} else if (componentType.equals("locality")) {
+											city = addressComponent.getString("long_name");
+										} else if (componentType.equals("country")) {
+											country = addressComponent.getString("long_name");
+										}
+									}
+								}
 							}
 						} else {
 							Toast errorToast = Toast.makeText(getActivity(),
@@ -347,6 +442,36 @@ public abstract class TicketFormFragment extends Fragment {
 				.format(Locale.ENGLISH,
 						"http://maps.googleapis.com/maps/api/geocode/json?latlng=%1$f,%2$f&sensor=false",
 						location.getLatitude(), location.getLongitude()));
+	}
+
+	// append already input address elements
+	private View postInflateDialogView(View view) {
+		if (view == null) {
+			view = getActivity().getLayoutInflater().inflate(
+					R.layout.dialog_address, null);
+		}
+
+		if (!road.equals("")) {
+			((EditText) view.findViewById(R.id.address_dialog_road))
+					.setText(road);
+		}
+
+		if (!postalCode.equals("")) {
+			((EditText) view.findViewById(R.id.address_dialog_postal_code))
+					.setText(postalCode);
+		}
+
+		if (!city.equals("")) {
+			((EditText) view.findViewById(R.id.address_dialog_city))
+					.setText(city);
+		}
+
+		if (!country.equals("")) {
+			((EditText) view.findViewById(R.id.address_dialog_country))
+					.setText(country);
+		}
+
+		return view;
 	}
 
 	@Override
