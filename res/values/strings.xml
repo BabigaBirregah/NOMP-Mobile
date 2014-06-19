@@ -48,7 +48,7 @@
     <string name="text_content_description_gps_loader">GPS</string>
     <string name="text_label_photo">Photos</string>
     <string name="text_button_photo">Add photo</string>
-    
+
     <!-- Text for address dialog -->
     <string name="text_address_dialog_title">Enter address</string>
     <string name="text_hint_road">Road name</string>
@@ -57,6 +57,17 @@
     <string name="text_hint_country">Country</string>
     <string name="text_address_dialog_button_positive">OK</string>
     <string name="text_address_dialog_button_negative">Cancel</string>
+    
+    <!-- Text for account page -->
+    <string name="text_welcome">Welcome </string>
+    <string name="text_label_post">POST TICKET</string>
+    <string name="text_label_post_need">Add a need</string>
+    <string name="text_label_post_offer">Add an offer</string>
+    <string name="text_label_list">MY TICKETS</string>
+    <string name="text_label_my_needs">My needs</string>
+    <string name="text_label_my_offers">My offers</string>
+    <string name="text_label_settings">SETTINGS</string>
+    <string name="text_label_my_settings">My settings</string>
 
     <!-- Error message for login -->
     <string name="error_incorrect_email">Incorrect email address</string>
@@ -82,10 +93,14 @@
 
     <!-- Text for action bar items -->
     <string name="text_ticket_form_send">Send ticket</string>
-    
+
     <!-- Text for activity title -->
     <string name="title_activity_ticket_form">Post</string>
     <string name="title_activity_ticket_page">View</string>
     <string name="title_activity_sign_up">Sign Up</string>
+    <string name="title_activity_account">My Account</string>
+    
+    <!-- Text for exit -->
+    <string name="press_once_again_to_exit">Press once again to exit</string>
 
 </resources>
