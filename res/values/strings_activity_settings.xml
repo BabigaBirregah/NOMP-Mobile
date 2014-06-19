@@ -1,0 +1,23 @@
+<resources>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+
+    <!-- settings for localization -->
+    <string name="pref_header_localization">Localization</string>
+    <string name="pref_title_gps">Enable GPS location</string>
+    <string name="pref_description_gps">Use GPS to retrieve your location by default when you post a ticket</string>
+
+    <!-- settings for classification preference -->
+    <string name="pref_header_classification">Classification preferences</string>
+    <string name="pref_title_classification">Preferred classification</string>
+    <string name="pref_title_sub_classification">Preferred sub classification</string>
+
+    <!-- settings for classification preference -->
+    <string name="pref_header_target">Target actor preferences</string>
+    <string name="pref_title_target">Preferred target actor</string>
+    <string name="pref_title_sub_target">Preferred sub target actor</string>
+
+</resources>

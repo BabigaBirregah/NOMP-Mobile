@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
 
 public abstract class Type extends BaseModel {
 
@@ -114,7 +113,6 @@ public abstract class Type extends BaseModel {
 			double margin = Config.NOMP_API_UPDATE_INTERVAL * 24 * 60 * 60;
 
 			if (!isUpdated || interval > margin) {
-				Log.d(TAG, "update");
 				apiGet();
 			}
 		}
@@ -146,7 +144,6 @@ public abstract class Type extends BaseModel {
 		String query = "SELECT * FROM " + getTableName()
 				+ " WHERE is_parent=0 AND parent='" + parent
 				+ "' ORDER BY _id DESC";
-		Log.d(TAG, query);
 
 		return queryCursor(query);
 	}

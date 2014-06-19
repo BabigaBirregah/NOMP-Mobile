@@ -3,12 +3,12 @@
 
     <string name="app_name">NOMP-Mobile</string>
     <string name="action_settings">Settings</string>
-    
+
     <!-- Text for login form -->
     <string name="text_button_login">Login</string>
     <string name="text_or"> OR </string>
     <string name="text_button_sign_up">Sign up</string>
-    
+
     <!-- Text for sign up form -->
     <string name="text_label_full_name">Full name:</string>
     <string name="text_hint_full_name">Enter your full name</string>
@@ -47,10 +47,10 @@
     <string name="text_hint_location">Enter a location</string>
     <string name="text_label_photo">Photos</string>
     <string name="text_button_photo">Add photo</string>
-    
+
     <!-- Error message for login -->
     <string name="error_incorrect_email">Incorrect email address</string>
-    
+
     <!-- Error message for sign in form validation -->
     <string name="text_error_full_name">Full name required</string>
     <string name="text_error_email">Email address required</string>
@@ -58,7 +58,7 @@
     <string name="text_error_username">Username required</string>
     <string name="text_error_password">Password required</string>
     <string name="text_error_source">Actor type required</string>
-    
+
     <!-- Error message for ticket form validation -->
     <string name="text_error_title">Ticket title required</string>
     <string name="text_error_period_from">Start date required</string>
@@ -72,9 +72,10 @@
 
     <!-- Text for action bar items -->
     <string name="text_ticket_form_send">Send ticket</string>
-    <string name="title_activity_ticket_form">TicketFormActivity</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_ticket_page">TicketPageActivity</string>
-    <string name="title_activity_sign_up">SignUpActivity</string>
+    
+    <!-- Text for activity title -->
+    <string name="title_activity_ticket_form">Post</string>
+    <string name="title_activity_ticket_page">View</string>
+    <string name="title_activity_sign_up">Sign Up</string>
 
 </resources>

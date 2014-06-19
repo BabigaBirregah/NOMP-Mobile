@@ -4,10 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import fr.utt.isi.nomp_mobile.R;
-import fr.utt.isi.nomp_mobile.R.id;
-import fr.utt.isi.nomp_mobile.R.layout;
-import fr.utt.isi.nomp_mobile.R.menu;
-import fr.utt.isi.nomp_mobile.R.string;
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.animation.Animator;
