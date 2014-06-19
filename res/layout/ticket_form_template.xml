@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <TextView
         android:id="@+id/label_title"
@@ -16,14 +16,14 @@
         android:hint="@string/text_hint_title"
         android:inputType="text" >
     </EditText>
-    
+
     <TextView
         android:id="@+id/label_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_description"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/description"
@@ -31,28 +31,29 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/text_hint_description"
-        android:lines="3"
-        android:inputType="textMultiLine" >
+        android:inputType="textMultiLine"
+        android:lines="3" >
     </EditText>
 
     <TextView
         android:id="@+id/label_classification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_classification"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/button_classification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/text_button_classification" />
-    
+
     <Spinner
         android:id="@+id/spinner_classification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Spinner
         android:id="@+id/spinner_sub_classification"
         android:layout_width="match_parent"
@@ -63,20 +64,21 @@
         android:id="@+id/label_target"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_target"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/button_target"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/text_button_target" />
-    
+
     <Spinner
         android:id="@+id/spinner_target"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Spinner
         android:id="@+id/spinner_sub_target"
         android:layout_width="match_parent"
@@ -87,9 +89,9 @@
         android:id="@+id/label_period"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_period"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
+        android:textSize="20sp" />
 
     <LinearLayout
         android:id="@+id/button_group_period"
@@ -102,15 +104,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.45"
-            android:text="@string/text_button_period_from"
-             />
-        
+            android:text="@string/text_button_period_from" />
+
         <TextView
-        android:id="@+id/seperator_period"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/text_seperator_period" />
+            android:id="@+id/seperator_period"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/text_seperator_period" />
 
         <Button
             android:id="@+id/button_period_to"
@@ -118,17 +119,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.45"
             android:text="@string/text_button_period_to" />
-        
     </LinearLayout>
-    
+
     <TextView
         android:id="@+id/label_quantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_quantity"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
-    
+        android:textSize="20sp" />
+
     <EditText
         android:id="@+id/quantity"
         android:layout_width="match_parent"
@@ -137,15 +137,15 @@
         android:hint="@string/text_hint_quantity"
         android:inputType="number" >
     </EditText>
-    
+
     <TextView
         android:id="@+id/label_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_price"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
-    
+        android:textSize="20sp" />
+
     <EditText
         android:id="@+id/price"
         android:layout_width="match_parent"
@@ -154,41 +154,58 @@
         android:hint="@string/text_hint_price"
         android:inputType="number" >
     </EditText>
-    
+
     <TextView
         android:id="@+id/label_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_location"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
-    
+        android:textSize="20sp" />
+
     <!-- TODO: add auto-complete of location (Google map API) -->
-    <EditText
-        android:id="@+id/location"
+
+    <LinearLayout
+        android:id="@+id/group_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/text_hint_location"
-        android:inputType="text" >
-    </EditText>
-    
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.75"
+            android:ems="10"
+            android:hint="@string/text_hint_location"
+            android:inputType="text" >
+        </EditText>
+        
+        <ImageView
+            android:id="@+id/gps_loader"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:src="@drawable/ic_action_refresh"
+            android:contentDescription="@string/text_content_description_gps_loader" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/geometry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
         android:layout_marginTop="12dp"
+        android:textSize="20sp"
         android:visibility="invisible" />
-    
+
     <TextView
         android:id="@+id/label_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/text_label_photo"
-        android:textSize="20sp"
-        android:layout_marginTop="12dp" />
-    
+        android:textSize="20sp" />
+
     <Button
         android:id="@+id/button_photo"
         android:layout_width="match_parent"

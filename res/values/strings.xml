@@ -45,6 +45,7 @@
     <string name="text_hint_description">Enter a description for the ticket</string>
     <string name="text_label_location">Location:</string>
     <string name="text_hint_location">Enter a location</string>
+    <string name="text_content_description_gps_loader">GPS</string>
     <string name="text_label_photo">Photos</string>
     <string name="text_button_photo">Add photo</string>
 
