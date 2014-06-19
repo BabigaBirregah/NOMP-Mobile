@@ -53,6 +53,8 @@ import android.widget.Toast;
 public abstract class TicketFormFragment extends Fragment {
 
 	public static final String TAG = "TicketFormFragment";
+	
+	private static boolean isGPSChecked = true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -173,10 +175,11 @@ public abstract class TicketFormFragment extends Fragment {
 	}
 
 	public void checkGPS() {
-		
 		LocationManager locationManager = (LocationManager) getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
 		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			isGPSChecked = false;
+			
 			// notice user to turn on the GPS
 			// TODO: make an alert dialog, if cancelled, return to home activity
 			// (eventually it will be a list)
@@ -191,10 +194,14 @@ public abstract class TicketFormFragment extends Fragment {
 			startActivityForResult(new Intent(
 					android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS),
 					0);
+		} else {
+			isGPSChecked = true;
 		}
 	}
 
 	public void populateLocationByGPS(View view) {
+		checkGPS();
+		
 		// location service
 		LocationManager locationManager = (LocationManager) getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
@@ -346,7 +353,9 @@ public abstract class TicketFormFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 
-		checkGPS();
+		if (!isGPSChecked) {
+			checkGPS();
+		}
 	}
 
 	@Override
