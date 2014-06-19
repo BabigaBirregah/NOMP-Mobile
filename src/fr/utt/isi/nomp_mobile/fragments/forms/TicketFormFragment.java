@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.adapters.TypeSpinnerArrayAdapter;
+import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.models.ActorType;
 import fr.utt.isi.nomp_mobile.models.Classification;
 import fr.utt.isi.nomp_mobile.models.Status;
@@ -25,6 +26,7 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -43,6 +45,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,8 +57,6 @@ public abstract class TicketFormFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		checkGPS();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -148,14 +149,59 @@ public abstract class TicketFormFragment extends Fragment {
 				R.id.button_period_from));
 		buttonPeriodTo.setOnClickListener(new ButtonPeriodOnClickListener(
 				R.id.button_period_to));
+		
+		// location
+		SharedPreferences localizationPrefereces = getActivity()
+				.getSharedPreferences(Config.PREF_NAME_LOCALIZATION,
+						Context.MODE_PRIVATE);
+		if (localizationPrefereces.getBoolean(Config.PREF_KEY_LOCALIZATION_GPS, true)) {
+			populateLocationByGPS(view);
+		}
+		
+		ImageView gpsLoader = (ImageView) view.findViewById(R.id.gps_loader);
+		gpsLoader.setClickable(true);
+		gpsLoader.setOnClickListener(new OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				populateLocationByGPS(null);
+			}
+			
+		});
+
+		return view;
+	}
+
+	public void checkGPS() {
+		
+		LocationManager locationManager = (LocationManager) getActivity()
+				.getSystemService(Context.LOCATION_SERVICE);
+		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			// notice user to turn on the GPS
+			// TODO: make an alert dialog, if cancelled, return to home activity
+			// (eventually it will be a list)
+			Toast gpsRequiredToast = Toast
+					.makeText(
+							getActivity(),
+							"Application need GPS service for localization. Please turn on the GPS service.",
+							Toast.LENGTH_LONG);
+			gpsRequiredToast.show();
+
+			// redirect to the system settings of toggling GPS service
+			startActivityForResult(new Intent(
+					android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS),
+					0);
+		}
+	}
+
+	public void populateLocationByGPS(View view) {
 		// location service
 		LocationManager locationManager = (LocationManager) getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
 
 		// define the listener
 		LocationListener locationListener = new LocationListener() {
-			
+
 			@Override
 			public void onLocationChanged(Location location) {
 				if (location != null) {
@@ -189,63 +235,50 @@ public abstract class TicketFormFragment extends Fragment {
 
 		Location lastKnownLocation = locationManager
 				.getLastKnownLocation(locationProvider);
-		
+
 		if (lastKnownLocation == null) {
 			locationProvider = LocationManager.NETWORK_PROVIDER;
-			
+
 			lastKnownLocation = locationManager
 					.getLastKnownLocation(locationProvider);
-			
+
 			locationManager.requestLocationUpdates(locationProvider, 0, 0,
 					locationListener);
 		}
 
 		if (lastKnownLocation != null) {
-			//Log.d(TAG, "lat=" + lastKnownLocation.getLatitude() + ", lon=" + lastKnownLocation.getLongitude());
+			// Log.d(TAG, "lat=" + lastKnownLocation.getLatitude() + ", lon=" +
+			// lastKnownLocation.getLongitude());
 			populateAddressByLocation(lastKnownLocation);
 			populateGeometryByLocation(lastKnownLocation, view);
 		}
 
 		// stop tracking the location service
 		locationManager.removeUpdates(locationListener);
+	}
 
-		return view;
-	}
-	
-	public void checkGPS() {
-		LocationManager locationManager = (LocationManager) getActivity()
-				.getSystemService(Context.LOCATION_SERVICE);
-		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			// notice user to turn on the GPS
-			// TODO: make an alert dialog, if cancelled, return to home activity (eventually it will be a list)
-			Toast gpsRequiredToast = Toast.makeText(getActivity(), "Application need GPS service for localization. Please turn on the GPS service.", Toast.LENGTH_LONG);
-			gpsRequiredToast.show();
-			
-			// redirect to the system settings of toggling GPS service
-			startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
-		}
-	}
-	
 	public void populateGeometryByLocation(Location location) {
 		populateGeometryByLocation(location, null);
 	}
-	
+
 	public void populateGeometryByLocation(Location location, View view) {
 		if (location == null) {
 			return;
 		}
-		
-		//Log.d(TAG, "\tpopulate: lat=" + location.getLatitude() + ", lon=" + location.getLongitude());
-		TextView geometryView = (TextView) (view == null ? getActivity().findViewById(R.id.geometry) : view.findViewById(R.id.geometry));
+
+		// Log.d(TAG, "\tpopulate: lat=" + location.getLatitude() + ", lon=" +
+		// location.getLongitude());
+		TextView geometryView = (TextView) (view == null ? getActivity()
+				.findViewById(R.id.geometry) : view.findViewById(R.id.geometry));
 		geometryView.setText(location.getLatitude() + ","
 				+ location.getLongitude());
 	}
-	
+
 	public void populateAddressByLocation(Location location) {
 		if (location == null) {
 			return;
 		}
-		
+
 		new RequestTask(getActivity(), "GET") {
 
 			@Override
@@ -306,14 +339,13 @@ public abstract class TicketFormFragment extends Fragment {
 		}.execute(String
 				.format(Locale.ENGLISH,
 						"http://maps.googleapis.com/maps/api/geocode/json?latlng=%1$f,%2$f&sensor=false",
-						location.getLatitude(),
-						location.getLongitude()));
+						location.getLatitude(), location.getLongitude()));
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
 		checkGPS();
 	}
 
