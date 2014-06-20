@@ -1,10 +1,12 @@
 package fr.utt.isi.nomp_mobile.fragments.forms;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONArray;
@@ -24,14 +26,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -56,12 +62,14 @@ public abstract class TicketFormFragment extends Fragment {
 
 	public static final String TAG = "TicketFormFragment";
 
-	private static boolean isGPSChecked = true;
+	protected static boolean isGPSChecked = true;
 
-	private static String road = "";
-	private static String postalCode = "";
-	private static String city = "";
-	private static String country = "";
+	protected static String road = "";
+	protected static String postalCode = "";
+	protected static String city = "";
+	protected static String country = "";
+	
+	protected static ProgressDialog loading = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -169,7 +177,7 @@ public abstract class TicketFormFragment extends Fragment {
 				// set a layout
 				builder.setView(postInflateDialogView(inflater.inflate(
 						R.layout.dialog_address, null)));
-				
+
 				builder.setTitle(R.string.text_address_dialog_title);
 
 				// set a positive button to submit the input address
@@ -224,7 +232,7 @@ public abstract class TicketFormFragment extends Fragment {
 		return view;
 	}
 
-	public void checkGPS() {
+	protected void checkGPS() {
 		LocationManager locationManager = (LocationManager) getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
 		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -249,7 +257,7 @@ public abstract class TicketFormFragment extends Fragment {
 		}
 	}
 
-	public void populateLocationByGPS(View view) {
+	protected void populateLocationByGPS(View view) {
 		checkGPS();
 
 		// location service
@@ -314,11 +322,11 @@ public abstract class TicketFormFragment extends Fragment {
 		locationManager.removeUpdates(locationListener);
 	}
 
-	public void populateGeometryByLocation(Location location) {
+	protected void populateGeometryByLocation(Location location) {
 		populateGeometryByLocation(location, null);
 	}
 
-	public void populateGeometryByLocation(Location location, View view) {
+	protected void populateGeometryByLocation(Location location, View view) {
 		if (location == null) {
 			return;
 		}
@@ -331,7 +339,7 @@ public abstract class TicketFormFragment extends Fragment {
 				+ location.getLongitude());
 	}
 
-	public void populateAddressByLocation(Location location) {
+	protected void populateAddressByLocation(Location location) {
 		if (location == null) {
 			return;
 		}
@@ -377,22 +385,33 @@ public abstract class TicketFormFragment extends Fragment {
 										.findViewById(R.id.location);
 								addressView.setText(address
 										.getString("formatted_address"));
-								
+
 								// get address components
-								JSONArray addressComponents = new JSONArray(address.getString("address_components"));
+								JSONArray addressComponents = new JSONArray(
+										address.getString("address_components"));
 								for (int i = 0; i < addressComponents.length(); i++) {
-									JSONObject addressComponent = addressComponents.getJSONObject(i);
-									JSONArray componentTypes = new JSONArray(addressComponent.getString("types"));
+									JSONObject addressComponent = addressComponents
+											.getJSONObject(i);
+									JSONArray componentTypes = new JSONArray(
+											addressComponent.getString("types"));
 									if (componentTypes.length() > 0) {
-										String componentType = componentTypes.getString(0);
+										String componentType = componentTypes
+												.getString(0);
 										if (componentType.equals("route")) {
-											road = addressComponent.getString("long_name");
-										} else if (componentType.equals("postal_code")) {
-											postalCode = addressComponent.getString("long_name");
-										} else if (componentType.equals("locality")) {
-											city = addressComponent.getString("long_name");
-										} else if (componentType.equals("country")) {
-											country = addressComponent.getString("long_name");
+											road = addressComponent
+													.getString("long_name");
+										} else if (componentType
+												.equals("postal_code")) {
+											postalCode = addressComponent
+													.getString("long_name");
+										} else if (componentType
+												.equals("locality")) {
+											city = addressComponent
+													.getString("long_name");
+										} else if (componentType
+												.equals("country")) {
+											country = addressComponent
+													.getString("long_name");
 										}
 									}
 								}
@@ -418,8 +437,58 @@ public abstract class TicketFormFragment extends Fragment {
 						location.getLatitude(), location.getLongitude()));
 	}
 
+	protected void populateGeometryByAddress(String address) {
+		loading = new ProgressDialog(getActivity());
+		loading.setTitle("Geocoding");
+		loading.setMessage("Please wait");
+		loading.show();
+		
+		new AsyncTask<String, Void, String>() {
+
+			@Override
+			protected String doInBackground(String... params) {
+				Geocoder geocoder = new Geocoder(getActivity(), Locale.ENGLISH);
+				try {
+					List<Address> addresses = geocoder.getFromLocationName(
+							params[0], 1);
+					if (addresses.size() > 0) {
+						Address result = addresses.get(0);
+						if (result.hasLatitude() && result.hasLongitude()) {
+							return result.getLatitude() + ","
+									+ result.getLongitude();
+						} else {
+							return null;
+						}
+					} else {
+						return null;
+					}
+				} catch (IOException e) {
+					return null;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(String result) {
+				loading.dismiss();
+				if (result == null) {
+					Toast errorToast = Toast.makeText(getActivity(),
+							"Failed to geocode the address", Toast.LENGTH_LONG);
+					errorToast.show();
+				} else {
+					TextView geometryView = (TextView) getActivity()
+							.findViewById(R.id.geometry);
+					geometryView.setText(result);
+					
+					Toast noticeToast = Toast.makeText(getActivity(), "Please press again to submit", Toast.LENGTH_LONG);
+					noticeToast.show();
+				}
+			}
+
+		}.execute(address);
+	}
+
 	// append already input address elements
-	private View postInflateDialogView(View view) {
+	protected View postInflateDialogView(View view) {
 		if (view == null) {
 			view = getActivity().getLayoutInflater().inflate(
 					R.layout.dialog_address, null);
@@ -467,7 +536,23 @@ public abstract class TicketFormFragment extends Fragment {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 		case R.id.action_send:
-			// TODO: validation
+			// pre-check for geometry
+			TextView geometryView = (TextView) getActivity().findViewById(R.id.geometry);
+			String geometry = (String) geometryView.getText();
+			EditText addressView = (EditText) getActivity().findViewById(R.id.location);
+			String address = addressView.getText().toString();
+			
+			if (address == null || address.equals("")) {
+				addressView.setError(getActivity().getString(R.string.error_field_required));
+				return true;
+			} else if (geometry == null || geometry.equals("")) {
+				// geocode the input address to populate the geometry
+				populateGeometryByAddress(address);
+				
+				// force the user to submit again to ensure that the geometry is populated
+				return true;
+			}
+			
 			long ticketId = storeTicket();
 			if (ticketId != -1) {
 				displayTicket(ticketId);
@@ -487,13 +572,43 @@ public abstract class TicketFormFragment extends Fragment {
 
 	protected ContentValues getBaseFieldValues() {
 		Activity context = getActivity();
+		String textErrorFieldRequired = context.getString(R.string.error_field_required);
+		
+		TextView geometryView = (TextView) context.findViewById(R.id.geometry);
+		String geometry = (String) geometryView.getText();
+		EditText addressView = (EditText) context.findViewById(R.id.location);
+		String address = addressView.getText().toString();
+		
+		// handle errors
+		addressView.setError(null);
+		if (address == null || address.equals("")) {
+			addressView.setError(textErrorFieldRequired);
+			return null;
+		} else if (geometry == null || geometry.equals("")) {
+			addressView.setError(textErrorFieldRequired);
+			return null;
+		}
 
 		EditText nameView = (EditText) context.findViewById(R.id.title);
 		String name = nameView.getText().toString();
+		
+		// handle errors
+		nameView.setError(null);
+		if (name == null || name.equals("")) {
+			nameView.setError(textErrorFieldRequired);
+			return null;
+		}
 
 		EditText descriptionView = (EditText) context
 				.findViewById(R.id.description);
 		String description = descriptionView.getText().toString();
+		
+		// handle errors
+		descriptionView.setError(null);
+		if (description == null || description.equals("")) {
+			descriptionView.setError(textErrorFieldRequired);
+			return null;
+		}
 
 		String keywords = "";
 
@@ -504,6 +619,14 @@ public abstract class TicketFormFragment extends Fragment {
 		// get classification item
 		Classification classificationItem = (Classification) subClassificationSpinner
 				.getSelectedItem();
+		
+		// handle errors
+		TextView labelClassificationView = (TextView) context.findViewById(R.id.label_classification);
+		labelClassificationView.setError(null);
+		if (classificationItem == null) {
+			labelClassificationView.setError(textErrorFieldRequired);
+			return null;
+		}
 
 		String classification = classificationItem.getNompId();
 		String classificationName = classificationItem.getName();
@@ -518,17 +641,21 @@ public abstract class TicketFormFragment extends Fragment {
 		// get target actor type item
 		ActorType actorTypeItem = (ActorType) subTargetSpinner
 				.getSelectedItem();
+		
+		// handle errors
+		TextView labelTargetView = (TextView) context.findViewById(R.id.label_target);
+		labelTargetView.setError(null);
+		if (actorTypeItem == null) {
+			labelTargetView.setError(textErrorFieldRequired);
+			return null;
+		}
+		
 		String targetActorType = actorTypeItem.getNompId();
 		String targetActorTypeName = actorTypeItem.getName();
 
-		String contactPhone = "+33674312347";
-		String contactMobile = "+33674312347";
+		String contactPhone = "";
+		String contactMobile = "";
 		String contactEmail = "yipeng.huang@utt.fr";
-
-		// Calendar creationDate = new GregorianCalendar();
-		// Calendar expirationDate = new GregorianCalendar();
-		// expirationDate.add(Calendar.MONTH, 3);
-		// Calendar updateDate = new GregorianCalendar();
 
 		// Dates
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
@@ -538,7 +665,7 @@ public abstract class TicketFormFragment extends Fragment {
 		try {
 			startDate = dateFormat.format(dateFormat.parse(startDate));
 		} catch (ParseException e1) {
-			// TODO: handle error
+			return null;
 		}
 
 		Button buttonPeriodTo = (Button) context
@@ -547,16 +674,22 @@ public abstract class TicketFormFragment extends Fragment {
 		try {
 			endDate = dateFormat.format(dateFormat.parse(endDate));
 		} catch (ParseException e) {
-			// TODO: handle error
+			return null;
+		}
+		
+		// handle errors
+		TextView labelPeriodView = (TextView) context.findViewById(R.id.label_period);
+		labelPeriodView.setError(null);
+		if (startDate == null || startDate.equals("") || endDate == null || endDate.equals("")) {
+			labelPeriodView.setError(textErrorFieldRequired);
 		}
 
 		EditText quantityView = (EditText) context.findViewById(R.id.quantity);
-		int quantity = Integer.parseInt(quantityView.getText().toString());
-
-		TextView geometryView = (TextView) context.findViewById(R.id.geometry);
-		String geometry = (String) geometryView.getText();
-		EditText addressView = (EditText) context.findViewById(R.id.location);
-		String address = addressView.getText().toString();
+		String quantityString = quantityView.getText().toString();
+		if (quantityString == null || quantityString.equals("")) {
+			quantityString = "0";
+		}
+		int quantity = Integer.parseInt(quantityString);
 
 		boolean isActive = true;
 		int statut = Status.OPEN;
