@@ -3,7 +3,7 @@
 
     <TextView
         android:id="@+id/label_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/text_label_title"
         android:textSize="20sp" />
@@ -19,9 +19,9 @@
 
     <TextView
         android:id="@+id/label_description"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="@string/text_label_description"
         android:textSize="20sp" />
 
@@ -32,64 +32,70 @@
         android:ems="10"
         android:hint="@string/text_hint_description"
         android:inputType="textMultiLine"
-        android:lines="3" >
+        android:lines="2" >
     </EditText>
 
     <TextView
         android:id="@+id/label_classification"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="@string/text_label_classification"
         android:textSize="20sp" />
 
-    <Button
-        android:id="@+id/button_classification"
+    <LinearLayout
+        android:id="@+id/spinner_group_classification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_button_classification" />
+        android:orientation="horizontal" >
 
-    <Spinner
-        android:id="@+id/spinner_classification"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <Spinner
+            android:id="@+id/spinner_classification"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" />
 
-    <Spinner
-        android:id="@+id/spinner_sub_classification"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible" />
+        <Spinner
+            android:id="@+id/spinner_sub_classification"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/label_target"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="@string/text_label_target"
         android:textSize="20sp" />
 
-    <Button
-        android:id="@+id/button_target"
+    <LinearLayout
+        android:id="@+id/spinner_group_target"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_button_target" />
+        android:orientation="horizontal" >
 
-    <Spinner
-        android:id="@+id/spinner_target"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <Spinner
+            android:id="@+id/spinner_target"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" />
 
-    <Spinner
-        android:id="@+id/spinner_sub_target"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible" />
+        <Spinner
+            android:id="@+id/spinner_sub_target"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/label_period"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="@string/text_label_period"
         android:textSize="20sp" />
 
@@ -121,45 +127,52 @@
             android:text="@string/text_button_period_to" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/label_quantity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/text_label_quantity"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/quantity"
+    <LinearLayout
+        android:id="@+id/edit_group_availability"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/text_hint_quantity"
-        android:inputType="number" >
-    </EditText>
+        android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/label_price"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/text_label_price"
-        android:textSize="20sp" />
+        <TextView
+            android:id="@+id/label_quantity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:text="@string/text_label_quantity"
+            android:textSize="20sp" />
 
-    <EditText
-        android:id="@+id/price"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/text_hint_price"
-        android:inputType="number" >
-    </EditText>
+        <EditText
+            android:id="@+id/quantity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:ems="10"
+            android:inputType="number" >
+        </EditText>
+
+        <TextView
+            android:id="@+id/label_price"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:text="@string/text_label_price"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/price"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:ems="10"
+            android:inputType="number" >
+        </EditText>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/label_location"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="@string/text_label_location"
         android:textSize="20sp" />
 
@@ -180,29 +193,27 @@
             android:hint="@string/text_hint_location"
             android:inputType="text" >
         </EditText>
-        
+
         <ImageView
             android:id="@+id/gps_loader"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.25"
-            android:src="@drawable/ic_action_refresh"
-            android:contentDescription="@string/text_content_description_gps_loader" />
+            android:contentDescription="@string/text_content_description_gps_loader"
+            android:src="@drawable/ic_action_refresh" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/geometry"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:textSize="20sp"
-        android:visibility="invisible" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/label_photo"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="@string/text_label_photo"
         android:textSize="20sp" />
 
