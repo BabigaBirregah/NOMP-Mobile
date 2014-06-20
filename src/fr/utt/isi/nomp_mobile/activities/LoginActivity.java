@@ -22,7 +22,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -209,6 +208,9 @@ public class LoginActivity extends ActionBarActivity {
 						editor.putString(Config.PREF_KEY_USER_NOMP_ID,
 								userNompId);
 						
+						// put the flag of existence
+						editor.putBoolean(Config.PREF_KEY_USER_IS_LOGGED, true);
+						
 						editor.commit();
 
 						// get user profile
@@ -223,7 +225,6 @@ public class LoginActivity extends ActionBarActivity {
 												.equals(RequestTask.IO_EXCEPTION)
 										&& !result
 												.equals(RequestTask.REQUEST_ERROR)) {
-									Log.d(TAG, "profile ok\n" + result);
 
 									try {
 										// parse response as json object
