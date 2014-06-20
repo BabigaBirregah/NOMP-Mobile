@@ -1,9 +1,7 @@
 package fr.utt.isi.nomp_mobile.tasks;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -76,30 +74,24 @@ public abstract class PostRequestTask extends AsyncTask<String, Void, String> {
 			// execute HTTP Post Request
 			HttpResponse response = httpclient.execute(httppost);
 			
+			Log.d(TAG, "post response status=" + response.getStatusLine().getStatusCode());
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-				Log.d(TAG, "post response status=" + response.getStatusLine().getStatusCode());
 				return null;
 			}
 
-			// parse the response as input stream
-			InputStream in = response.getEntity().getContent();
-
-			// prepare to build the response string
-			String line = "";
-			StringBuilder responseBuilder = new StringBuilder();
-
-			// read the response input stream and build the response string
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(in), 32768);
-			while ((line = reader.readLine()) != null) {
-				responseBuilder.append(line);
-			}
-
-			return responseBuilder.toString();
+			// output the response entity
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			response.getEntity().writeTo(out);
+			String responseString = out.toString();
+			out.close();
+			return responseString;
 
 		} catch (ClientProtocolException e) {
+			Log.d(TAG, "client protocol exception");
 			return null;
 		} catch (IOException e) {
+			Log.d(TAG, "io exception");
+			e.printStackTrace();
 			return null;
 		}
 	}

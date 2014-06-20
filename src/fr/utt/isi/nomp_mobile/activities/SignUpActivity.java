@@ -6,10 +6,12 @@ import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.adapters.TypeSpinnerArrayAdapter;
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.models.ActorType;
-import fr.utt.isi.nomp_mobile.tasks.RequestTask;
+import fr.utt.isi.nomp_mobile.tasks.PostRequestTask;
 import fr.utt.isi.nomp_mobile.utils.Utils;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -29,35 +31,32 @@ public class SignUpActivity extends ActionBarActivity implements
 
 	public static final String TAG = "SignUpActivity";
 
+	private static ProgressDialog loading = null;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (!isUserExist()) {
-			setContentView(R.layout.activity_sign_up);
+		setContentView(R.layout.activity_sign_up);
 
-			// source actor type drop down list
-			ActorType actorType = new ActorType(this);
-			ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
-					.parentList();
+		// source actor type drop down list
+		ActorType actorType = new ActorType(this);
+		ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
+				.parentList();
 
-			// create an adapter for spinner
-			TypeSpinnerArrayAdapter spinnerSourceAdapter = new TypeSpinnerArrayAdapter(
-					this, android.R.layout.simple_spinner_item,
-					parentActorTypes);
-			spinnerSourceAdapter
-					.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// create an adapter for spinner
+		TypeSpinnerArrayAdapter spinnerSourceAdapter = new TypeSpinnerArrayAdapter(
+				this, android.R.layout.simple_spinner_item, parentActorTypes);
+		spinnerSourceAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-			// set adapter to spinner
-			Spinner spinnerSource = (Spinner) this
-					.findViewById(R.id.spinner_source);
-			spinnerSource.setAdapter(spinnerSourceAdapter);
+		// set adapter to spinner
+		Spinner spinnerSource = (Spinner) this
+				.findViewById(R.id.spinner_source);
+		spinnerSource.setAdapter(spinnerSourceAdapter);
 
-			// set listener to spinner to show correspondent sub-spinner
-			spinnerSource.setOnItemSelectedListener(this);
-		} else {
-			// TODO: redirect to login page
-		}
+		// set listener to spinner to show correspondent sub-spinner
+		spinnerSource.setOnItemSelectedListener(this);
 	}
 
 	@Override
@@ -73,10 +72,7 @@ public class SignUpActivity extends ActionBarActivity implements
 		switch (item.getItemId()) {
 		case R.id.action_send:
 			if (validate()) {
-				String userNompId = createUser();
-				if (userNompId != null) {
-					// TODO: redirect to user account page
-				}
+				createUser();
 			} else {
 				Toast errorToast = Toast
 						.makeText(
@@ -195,7 +191,6 @@ public class SignUpActivity extends ActionBarActivity implements
 		EditText viewUsername = (EditText) this.findViewById(R.id.username);
 		String username = viewUsername.getText().toString();
 
-		// TODO: find a way to avoid non-hashed password in transmission and
 		// storage respecting NOMP API
 		EditText viewPassword = (EditText) this.findViewById(R.id.password);
 		String password = viewPassword.getText().toString();
@@ -231,92 +226,85 @@ public class SignUpActivity extends ActionBarActivity implements
 		return values;
 	}
 
-	private boolean isUserExist() {
-		SharedPreferences userInfo = this.getSharedPreferences(
-				Config.PREF_NAME_USER, Context.MODE_PRIVATE);
-		if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
-			Toast errorToast = Toast
-					.makeText(
-							this,
-							"You already have an account on this device. Please sign in.",
-							Toast.LENGTH_LONG);
-			errorToast.show();
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private String createUser() {
-		// create user locally
-		if (!isUserExist()) {
-			// get shared preferences
-			SharedPreferences userInfo = this.getSharedPreferences(
-					Config.PREF_NAME_USER, Context.MODE_PRIVATE);
-
-			// get editor of preferences
-			Editor editor = userInfo.edit();
-
-			// put the flag of existence
-			editor.putBoolean(Config.PREF_KEY_USER_IS_LOGGED, true);
-
-			// put basic user values
-			ContentValues values = getBaseFieldValues();
-			editor.putString(Config.PREF_KEY_USER_NAME,
-					values.getAsString("name"));
-			editor.putString(Config.PREF_KEY_USER_EMAIL,
-					values.getAsString("email"));
-			editor.putString(Config.PREF_KEY_USER_USERNAME,
-					values.getAsString("username"));
-			editor.putString(Config.PREF_KEY_USER_PASSWORD,
-					values.getAsString("password"));
-			editor.putString(Config.PREF_KEY_USER_ACTOR_TYPE,
-					values.getAsString("actor_type_nomp_id"));
-			editor.putString(Config.PREF_KEY_USER_ACTOR_TYPE_NAME,
-					values.getAsString("actor_type_name"));
-
-			// commit the preferences
-			editor.commit();
-		}
-
+	private void createUser() {
 		// create user on remote server via API
 		ContentValues queryValues = getBaseFieldValues();
-		String queryString = Utils.parseQuery(queryValues);
-		String hex = Utils.getHexString(("sha1" + Utils
-				.getHexString(queryString.getBytes())).getBytes());
-		queryValues.put("mobile_query_token", hex);
+		// String queryString = Utils.parseQuery(queryValues);
+		// String hex = Utils.getHexString(("sha1" + Utils
+		// .getHexString(queryString.getBytes())).getBytes());
+		// queryValues.put("mobile_query_token", hex);
 
-		new RequestTask(this, "POST", Utils.parseQuery(queryValues)) {
+		loading = new ProgressDialog(this);
+		loading.setTitle("Loading");
+		loading.setMessage("Please wait");
+		loading.show();
+
+		new PostRequestTask(this, queryValues) {
 
 			@Override
-			public void onPostExecute(String result) {
-				if (result == null) {
-					Toast errorToast = Toast.makeText(this.getContext(),
-							"Some error occurs during request.",
-							Toast.LENGTH_LONG);
-					errorToast.show();
-				} else if (result.equals(RequestTask.MAL_FORMED_URL_EXCEPTION)) {
-					Toast errorToast = Toast.makeText(this.getContext(),
-							"Request server not found.", Toast.LENGTH_LONG);
-					errorToast.show();
-				} else if (result.equals(RequestTask.IO_EXCEPTION)) {
+			protected void onPostExecute(String response) {
+				if (response == null) {
 					Toast errorToast = Toast
 							.makeText(
 									this.getContext(),
-									"Unable to retrieve data from server. Please try again later.",
+									"Failed to create new user on server. Please try again later",
 									Toast.LENGTH_LONG);
 					errorToast.show();
-				} else if (result.equals(RequestTask.REQUEST_ERROR)) {
-					Toast errorToast = Toast.makeText(this.getContext(),
-							"Request failed.", Toast.LENGTH_LONG);
-					errorToast.show();
 				} else {
-					// TODO: handle result when _csrf is removed
+					String userNompId = Utils.webResponse2UserNompId(response);
+					if (userNompId != null) {
+						// get shared preferences
+						SharedPreferences userInfo = getContext()
+								.getSharedPreferences(Config.PREF_NAME_USER,
+										Context.MODE_PRIVATE);
+
+						// get editor of preferences
+						Editor editor = userInfo.edit();
+
+						// put the user nomp id
+						editor.putString(Config.PREF_KEY_USER_NOMP_ID,
+								userNompId);
+
+						// put the flag of existence
+						editor.putBoolean(Config.PREF_KEY_USER_IS_LOGGED, true);
+
+						// put basic user values
+						ContentValues values = getQueryValues();
+						editor.putString(Config.PREF_KEY_USER_NAME,
+								values.getAsString("name"));
+						editor.putString(Config.PREF_KEY_USER_EMAIL,
+								values.getAsString("email"));
+						editor.putString(Config.PREF_KEY_USER_USERNAME,
+								values.getAsString("username"));
+						editor.putString(Config.PREF_KEY_USER_PASSWORD,
+								values.getAsString("password"));
+						editor.putString(Config.PREF_KEY_USER_ACTOR_TYPE,
+								values.getAsString("actor_type_nomp_id"));
+						editor.putString(Config.PREF_KEY_USER_ACTOR_TYPE_NAME,
+								values.getAsString("actor_type_name"));
+
+						// commit the preferences
+						editor.commit();
+
+						// redirect to account page
+						Intent intent = new Intent(getContext(),
+								SettingsActivity.class);
+						getContext().startActivity(intent);
+					} else {
+						Toast errorToast = Toast
+								.makeText(
+										this.getContext(),
+										"Failed to receive the id of new user from server. Your account might be already created. Please try login or sign up again later.",
+										Toast.LENGTH_LONG);
+						errorToast.show();
+					}
+				}
+
+				if (loading != null) {
+					loading.dismiss();
 				}
 			}
 
 		}.execute(Config.NOMP_API_ROOT + "user");
-
-		return null;
 	}
 }

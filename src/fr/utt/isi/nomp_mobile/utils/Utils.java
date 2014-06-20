@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Set;
 
 import android.content.ContentValues;
@@ -14,6 +16,18 @@ public class Utils {
 	public static final String TAG = "Utils";
 
 	private Utils() {
+	}
+	
+	public static String webResponse2UserNompId(String response) {
+		// regex match "My account" link tag returned as HTML
+		Pattern pNompId = Pattern
+				.compile("<a href=\"/user/([^\"<>]+)\" title=\"My account\">");
+		Matcher mNompId = pNompId.matcher(response);
+		if (mNompId.find()) {
+			return mNompId.group(1);
+		} else {
+			return null;
+		}
 	}
 
 	public static String parseQuery(ContentValues keyValuePairs) {

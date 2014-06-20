@@ -3,6 +3,7 @@ package fr.utt.isi.nomp_mobile.activities;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
@@ -74,6 +75,19 @@ public class SettingsActivity extends PreferenceActivity {
 				Config.PREF_NAME_CLASSIFICATION, Context.MODE_PRIVATE);
 		actorTypePreferences = getSharedPreferences(
 				Config.PREF_NAME_ACTOR_TYPE, Context.MODE_PRIVATE);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		SharedPreferences userPreferences = getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+		String userFullName = userPreferences.getString(Config.PREF_KEY_USER_NAME, null);
+		if (userFullName != null) {
+			Intent intent = new Intent(this, AccountActivity.class);
+			intent.putExtra(Config.PREF_KEY_USER_NAME, userFullName);
+			startActivity(intent);
+		} else {
+			super.onBackPressed();
+		}
 	}
 
 	@SuppressWarnings("unchecked")

@@ -10,6 +10,7 @@ import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.tasks.PostRequestTask;
 import fr.utt.isi.nomp_mobile.tasks.RequestTask;
+import fr.utt.isi.nomp_mobile.utils.Utils;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -197,13 +198,8 @@ public class LoginActivity extends ActionBarActivity {
 						return;
 					}
 
-					// regex match "My account" link tag returned as HTML
-					Pattern pNompId = Pattern
-							.compile("<a href=\"/user/([^\"<>]+)\" title=\"My account\">");
-					Matcher mNompId = pNompId.matcher(response);
-					if (mNompId.find()) {
-						String userNompId = mNompId.group(1);
-						
+					String userNompId = Utils.webResponse2UserNompId(response);
+					if (userNompId != null) {
 						SharedPreferences userInfo = getContext()
 								.getSharedPreferences(Config.PREF_NAME_USER,
 										Context.MODE_PRIVATE);

@@ -1,6 +1,7 @@
 package fr.utt.isi.nomp_mobile.activities;
 
 import fr.utt.isi.nomp_mobile.R;
+import fr.utt.isi.nomp_mobile.config.Config;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -23,7 +24,7 @@ public class AccountActivity extends ActionBarActivity implements
 		// user's full name
 		Intent intent = getIntent();
 		((TextView) findViewById(R.id.text_welcome_full_name)).setText(intent
-				.getStringExtra("name"));
+				.getStringExtra(Config.PREF_KEY_USER_NAME));
 
 		// bridges to ticket form
 		TextView postNeedView = (TextView) findViewById(R.id.label_post_need);
