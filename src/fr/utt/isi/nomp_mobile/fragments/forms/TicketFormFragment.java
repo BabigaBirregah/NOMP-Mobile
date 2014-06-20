@@ -78,20 +78,6 @@ public abstract class TicketFormFragment extends Fragment {
 
 		setHasOptionsMenu(true);
 
-		// classification update via api (just for dev)
-		Button buttonClassification = (Button) view
-				.findViewById(R.id.button_classification);
-		buttonClassification.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View view) {
-				Classification classification = new Classification(
-						getActivity());
-				classification.apiGet();
-			}
-
-		});
-
 		// classification drop down list
 		Classification classification = new Classification(getActivity());
 		ArrayList<Classification> parentClassifications = (ArrayList<Classification>) classification
@@ -114,18 +100,6 @@ public abstract class TicketFormFragment extends Fragment {
 				.setOnItemSelectedListener(new TypeSpinnerOnItemSelectedListener(
 						Type.TYPE_CLASSIFICATION,
 						R.id.spinner_sub_classification));
-
-		// actor type update via api (just for dev)
-		Button buttonTarget = (Button) view.findViewById(R.id.button_target);
-		buttonTarget.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View view) {
-				ActorType actorType = new ActorType(getActivity());
-				actorType.apiGet();
-			}
-
-		});
 
 		// classification drop down list
 		ActorType actorType = new ActorType(getActivity());

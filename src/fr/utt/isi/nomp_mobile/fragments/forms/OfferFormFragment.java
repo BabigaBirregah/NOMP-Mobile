@@ -31,10 +31,6 @@ public class OfferFormFragment extends TicketFormFragment {
 				.findViewById(R.id.label_price);
 		priceLabelView.setText(R.string.text_label_price_cost);
 
-		// update field placeholder for budget
-		EditText priceView = (EditText) view.findViewById(R.id.price);
-		priceView.setHint(R.string.text_hint_price_cost);
-
 		return view;
 	}
 
