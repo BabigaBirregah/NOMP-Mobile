@@ -1,10 +1,14 @@
 package fr.utt.isi.nomp_mobile.activities;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.config.Config;
+import fr.utt.isi.nomp_mobile.tasks.PostRequestTask;
 import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -12,10 +16,12 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -29,6 +35,8 @@ import android.widget.Toast;
  * well.
  */
 public class LoginActivity extends ActionBarActivity {
+
+	public static final String TAG = "LoginActivity";
 
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
@@ -156,51 +164,141 @@ public class LoginActivity extends ActionBarActivity {
 		} else {
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 
-			// attempt to log the user in locally
-			SharedPreferences userInfo = this.getSharedPreferences(
-					Config.PREF_NAME_USER, Context.MODE_PRIVATE);
-			if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
-				if (mEmail != userInfo.getString(Config.PREF_KEY_USER_EMAIL,
-						null)) {
-					mEmailView
-							.setError(getString(R.string.error_incorrect_email));
-					mEmailView.requestFocus();
-					return;
-				} else if (mPassword != userInfo.getString(
-						Config.PREF_KEY_USER_PASSWORD, null)) {
-					mPasswordView
-							.setError(getString(R.string.error_incorrect_password));
-					mPasswordView.requestFocus();
-					return;
-				} else {
-					// attempt to log the user in remotely
-					showProgress(true);
-					try {
-						String queryString = "email="
-								+ URLEncoder.encode(mEmail, "UTF-8") + "&"
-								+ "password="
-								+ URLEncoder.encode(mPassword, "UTF-8");
+			// attempt to log the user in remotely
+			showProgress(true);
 
-						new RequestTask(this, "POST", queryString) {
+			new PostRequestTask(this, "email", mEmail, "password", mPassword) {
+
+				@Override
+				protected void onPostExecute(String response) {
+					showProgress(false);
+
+					if (response == null) {
+						Toast errorToast = Toast.makeText(getContext(),
+								"Failed to login with remote server",
+								Toast.LENGTH_LONG);
+						errorToast.show();
+						return;
+					}
+
+					// regex match "Invalid email or password" error
+					Pattern pInvalid = Pattern
+							.compile("<span>Invalid email or password.</span>");
+					Matcher mInvalid = pInvalid.matcher(response);
+					if (mInvalid.find()) {
+						// notify user that there might be errors
+						Toast errorToast = Toast.makeText(getContext(),
+								"Invalid email or password", Toast.LENGTH_LONG);
+						errorToast.show();
+						mEmailView.setError(getContext().getString(
+								R.string.error_incorrect_email));
+						mPasswordView.setError(getContext().getString(
+								R.string.error_incorrect_password));
+						return;
+					}
+
+					// regex match "My account" link tag returned as HTML
+					Pattern pNompId = Pattern
+							.compile("<a href=\"/user/([^\"<>]+)\" title=\"My account\">");
+					Matcher mNompId = pNompId.matcher(response);
+					if (mNompId.find()) {
+						String userNompId = mNompId.group(1);
+						
+						SharedPreferences userInfo = getContext()
+								.getSharedPreferences(Config.PREF_NAME_USER,
+										Context.MODE_PRIVATE);
+						Editor editor = userInfo.edit();
+						
+						// store user nomp id in shared preferences
+						editor.putString(Config.PREF_KEY_USER_NOMP_ID,
+								userNompId);
+						
+						editor.commit();
+
+						// get user profile
+						new RequestTask(getContext(), "GET") {
 
 							@Override
 							public void onPostExecute(String result) {
-								showProgress(false);
-								// TODO: login action
-								// TODO: redirect to user account page
+								if (result != null
+										&& !result
+												.equals(RequestTask.MAL_FORMED_URL_EXCEPTION)
+										&& !result
+												.equals(RequestTask.IO_EXCEPTION)
+										&& !result
+												.equals(RequestTask.REQUEST_ERROR)) {
+									Log.d(TAG, "profile ok\n" + result);
+
+									try {
+										// parse response as json object
+										JSONObject profileObject = new JSONObject(
+												result);
+
+										SharedPreferences userInfo = getContext()
+												.getSharedPreferences(
+														Config.PREF_NAME_USER,
+														Context.MODE_PRIVATE);
+										Editor editor = userInfo.edit();
+
+										// store user info in shared preferences
+										editor.putString(
+												Config.PREF_KEY_USER_ACTOR_TYPE,
+												profileObject
+														.getString("actor_type"));
+										editor.putString(
+												Config.PREF_KEY_USER_ACTOR_TYPE_NAME,
+												profileObject
+														.getString("actor_type_name"));
+										editor.putString(
+												Config.PREF_KEY_USER_NAME,
+												profileObject.getString("name"));
+										editor.putString(
+												Config.PREF_KEY_USER_USERNAME,
+												profileObject
+														.getString("username"));
+										editor.putString(
+												Config.PREF_KEY_USER_EMAIL,
+												profileObject
+														.getString("email"));
+
+										editor.commit();
+
+										// redirect to account page
+										Intent intent = new Intent(
+												getContext(),
+												AccountActivity.class);
+										intent.putExtra(
+												Config.PREF_KEY_USER_NAME,
+												userInfo.getString(
+														Config.PREF_KEY_USER_NAME,
+														""));
+										getContext().startActivity(intent);
+									} catch (JSONException e) {
+										Toast errorToast = Toast
+												.makeText(
+														getContext(),
+														"Failed to receive data from server. Please try again later",
+														Toast.LENGTH_LONG);
+										errorToast.show();
+										return;
+									}
+								} else {
+									Toast errorToast = Toast
+											.makeText(
+													getContext(),
+													"Failed to login with remote server",
+													Toast.LENGTH_LONG);
+									errorToast.show();
+									return;
+								}
 							}
 
-						}.execute(Config.NOMP_API_ROOT + "user/session");
-					} catch (UnsupportedEncodingException e) {
-						Toast errorToast = Toast
-								.makeText(
-										this,
-										"Your email/password could not be encoded. Please check your input.",
-										Toast.LENGTH_LONG);
-						errorToast.show();
+						}.execute(Config.NOMP_API_ROOT + "user/" + userNompId
+								+ "/profile");
 					}
 				}
-			}
+
+			}.execute(Config.NOMP_API_ROOT + "user/session");
 		}
 	}
 
