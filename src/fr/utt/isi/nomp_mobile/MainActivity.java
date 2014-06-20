@@ -1,6 +1,7 @@
 package fr.utt.isi.nomp_mobile;
 
 import fr.utt.isi.nomp_mobile.R;
+import fr.utt.isi.nomp_mobile.activities.AccountActivity;
 import fr.utt.isi.nomp_mobile.activities.LoginActivity;
 import fr.utt.isi.nomp_mobile.config.Config;
 import android.content.Context;
@@ -20,20 +21,20 @@ public class MainActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_main);
 
 		// create the intent pointing to the login activity
-		Intent intent = new Intent(this, LoginActivity.class);
+		Intent intent;
 
 		// set the default email/password for login if exists
 		SharedPreferences userInfo = this.getSharedPreferences(
 				Config.PREF_NAME_USER, Context.MODE_PRIVATE);
-		if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)
-				&& userInfo.getString(Config.PREF_KEY_USER_EMAIL, null) != null
-				&& userInfo.getString(Config.PREF_KEY_USER_PASSWORD, null) != null) {
 
-			intent.putExtra(Config.PREF_KEY_USER_EMAIL,
-					userInfo.getString(Config.PREF_KEY_USER_EMAIL, null));
-			intent.putExtra(Config.PREF_KEY_USER_PASSWORD,
-					userInfo.getString(Config.PREF_KEY_USER_PASSWORD, null));
-
+		if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
+			// user is already logged in, turn to account page
+			intent = new Intent(this, AccountActivity.class);
+			intent.putExtra(Config.PREF_KEY_USER_NAME,
+					userInfo.getString(Config.PREF_KEY_USER_NAME, null));
+		} else {
+			// user has not logged yet, turn to login page
+			intent = new Intent(this, LoginActivity.class);
 		}
 
 		// start the login activity
