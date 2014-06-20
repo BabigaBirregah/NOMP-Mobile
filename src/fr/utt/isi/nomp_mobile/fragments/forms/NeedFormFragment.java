@@ -38,6 +38,10 @@ public class NeedFormFragment extends TicketFormFragment {
 	public long storeTicket() {
 		// get basic common fields
 		ContentValues baseValues = getBaseFieldValues();
+		
+		if (baseValues == null) {
+			return -1;
+		}
 
 		// build dates
 		Calendar currentCalendar = new GregorianCalendar();
