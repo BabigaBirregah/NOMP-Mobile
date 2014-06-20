@@ -61,7 +61,7 @@ public abstract class Type extends BaseModel {
 	}
 
 	public String toJSONString() {
-		return "{" + "\"_id\":\"" + nompId + "\",\"name\":\"" + name + "\""
+		return "{" + "\"id\":\"" + nompId + "\",\"name\":\"" + name + "\""
 				+ "}";
 	}
 
