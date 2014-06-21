@@ -1,8 +1,8 @@
-package fr.utt.isi.nomp_mobile;
+package fr.utt.isi.nomp_mobile.activities;
 
 import java.util.List;
 
-import fr.utt.isi.nomp_mobile.activities.TicketPageActivity;
+import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.adapters.TicketListArrayAdapter;
 import fr.utt.isi.nomp_mobile.models.Need;
 import fr.utt.isi.nomp_mobile.models.Offer;
@@ -59,5 +59,11 @@ public class TicketListActivity extends ActionBarActivity implements OnItemClick
 			intent.putExtra("ticketId", ticket.get_id());
 			startActivity(intent);
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		Intent intent = new Intent(this, AccountActivity.class);
+		startActivity(intent);
 	}
 }

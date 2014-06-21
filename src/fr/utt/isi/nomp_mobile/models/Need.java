@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class Need extends Ticket {
 
@@ -160,7 +159,7 @@ public class Need extends Ticket {
 
 		return this;
 	}
-	
+
 	@Override
 	public List<Need> list() {
 		return list(false);
@@ -170,9 +169,13 @@ public class Need extends Ticket {
 		// prepare the query
 		String query = "SELECT * FROM " + NOMPDataContract.Need.TABLE_NAME;
 		if (isForMe) {
-			SharedPreferences userInfo = context.getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+			SharedPreferences userInfo = context.getSharedPreferences(
+					Config.PREF_NAME_USER, Context.MODE_PRIVATE);
 			if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
-				query += " WHERE user='" + userInfo.getString(Config.PREF_KEY_USER_NOMP_ID, "-1") + "'";
+				query += " WHERE user='"
+						+ userInfo
+								.getString(Config.PREF_KEY_USER_NOMP_ID, "-1")
+						+ "'";
 			}
 		}
 		query += " ORDER BY _id DESC";
@@ -266,7 +269,6 @@ public class Need extends Ticket {
 		c.close();
 		readable.close();
 
-		Log.d(TAG, needList.toString());
 		return needList;
 	}
 

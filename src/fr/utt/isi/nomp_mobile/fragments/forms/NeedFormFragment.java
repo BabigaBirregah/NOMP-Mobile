@@ -98,6 +98,8 @@ public class NeedFormFragment extends TicketFormFragment {
 		Intent intent = new Intent(getActivity().getBaseContext(), TicketPageActivity.class);
 		
 		// put arguments for display, eventually the ticket id
+		intent.putExtra("parentActivity", "TicketFormActivity");
+		intent.putExtra("ticketType", "need");
 		intent.putExtra("ticketId", ticketId);
 		
 		// start the page activity for display

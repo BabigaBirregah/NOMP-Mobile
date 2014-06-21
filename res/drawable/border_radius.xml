@@ -12,11 +12,5 @@
         android:bottomRightRadius="4dp"
         android:topLeftRadius="4dp"
         android:topRightRadius="4dp" />
-    
-    <item>
-        <bitmap
-            android:drawable="@drawable/ic_action_forward"
-            android:gravity="right" />
-    </item>
 
 </shape>

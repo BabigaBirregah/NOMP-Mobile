@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 public class TicketListArrayAdapter extends ArrayAdapter<Ticket> {
 	
+	public static final String TAG = "TicketListArrayAdapter";
+	
 	private Context context;
 	
 	private int resource;
@@ -65,16 +67,16 @@ public class TicketListArrayAdapter extends ArrayAdapter<Ticket> {
 			int status = ticket.getStatut();
 			String statusLabel = Status.LABELS[status];
 			String statusColor = Status.COLORS[status];
-			((TextView) parent.findViewById(R.id.ticket_status)).setText(statusLabel);
-			((GradientDrawable) parent.findViewById(R.id.ticket_status).getBackground()).setColor(Color.parseColor(statusColor));
+			((TextView) convertView.findViewById(R.id.ticket_status)).setText(statusLabel);
+			((GradientDrawable) convertView.findViewById(R.id.ticket_status).getBackground()).setColor(Color.parseColor(statusColor));
 			
 			// ticket name
 			String name = ticket.getName();
-			((TextView) parent.findViewById(R.id.ticket_name)).setText(name);
+			((TextView) convertView.findViewById(R.id.ticket_name)).setText(name);
 			
 			// ticket creation date
 			String creationDate = ticket.getCreationDate();
-			((TextView) parent.findViewById(R.id.ticket_creation_date)).setText(creationDate);
+			((TextView) convertView.findViewById(R.id.ticket_creation_date)).setText(creationDate);
 			
 			// ticket classification
 			Classification childClassification = (Classification) (new Classification(context).retrieve(ticket.getClassification()));
@@ -83,7 +85,7 @@ public class TicketListArrayAdapter extends ArrayAdapter<Ticket> {
 				Classification parentClassification = (Classification) (new Classification(context).retrieve(childClassification.getParent()));
 				classificationLabel = parentClassification.getName() + " > " + classificationLabel;
 			}
-			((TextView) parent.findViewById(R.id.ticket_classification)).setText(classificationLabel);
+			((TextView) convertView.findViewById(R.id.ticket_classification)).setText(classificationLabel);
 			
 			// ticket target actor
 			ActorType childTarget = (ActorType) (new ActorType(context).retrieve(ticket.getTargetActorType()));
@@ -92,7 +94,7 @@ public class TicketListArrayAdapter extends ArrayAdapter<Ticket> {
 				ActorType parentTarget = (ActorType) (new ActorType(context).retrieve(childTarget.getParent()));
 				targetLabel = parentTarget.getName() + " > " + targetLabel;
 			}
-			((TextView) parent.findViewById(R.id.ticket_target)).setText(targetLabel);
+			((TextView) convertView.findViewById(R.id.ticket_target)).setText(targetLabel);
 		}
 		
 		return convertView;

@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class Offer extends Ticket {
 
@@ -266,7 +265,6 @@ public class Offer extends Ticket {
 		c.close();
 		readable.close();
 
-		Log.d(TAG, offerList.toString());
 		return offerList;
 	}
 
