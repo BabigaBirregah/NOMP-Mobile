@@ -1,6 +1,7 @@
 package fr.utt.isi.nomp_mobile.activities;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.adapters.TypeSpinnerArrayAdapter;
@@ -14,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -44,19 +46,17 @@ public class SignUpActivity extends ActionBarActivity implements
 		ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
 				.parentList();
 
-		// create an adapter for spinner
-		TypeSpinnerArrayAdapter spinnerSourceAdapter = new TypeSpinnerArrayAdapter(
-				this, android.R.layout.simple_spinner_item, parentActorTypes);
-		spinnerSourceAdapter
-				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		if (parentActorTypes.size() > 0) {
+			populateActorTypeParentList(parentActorTypes);
+		} else {
+			// pop up the progress
+			loading = new ProgressDialog(this);
+			loading.setTitle("Loading");
+			loading.setMessage("Please wait");
+			loading.show();
 
-		// set adapter to spinner
-		Spinner spinnerSource = (Spinner) this
-				.findViewById(R.id.spinner_source);
-		spinnerSource.setAdapter(spinnerSourceAdapter);
-
-		// set listener to spinner to show correspondent sub-spinner
-		spinnerSource.setOnItemSelectedListener(this);
+			new PauserTask(this).execute();
+		}
 	}
 
 	@Override
@@ -114,68 +114,80 @@ public class SignUpActivity extends ActionBarActivity implements
 	public void onNothingSelected(AdapterView<?> parent) {
 	}
 
+	private void populateActorTypeParentList(List<ActorType> parentActorTypes) {
+		// create an adapter for spinner
+		TypeSpinnerArrayAdapter spinnerSourceAdapter = new TypeSpinnerArrayAdapter(
+				this, android.R.layout.simple_spinner_item, parentActorTypes);
+		spinnerSourceAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		// set adapter to spinner
+		Spinner spinnerSource = (Spinner) this
+				.findViewById(R.id.spinner_source);
+		spinnerSource.setAdapter(spinnerSourceAdapter);
+
+		// set listener to spinner to show correspondent sub-spinner
+		spinnerSource.setOnItemSelectedListener(this);
+	}
+
 	private boolean validate() {
 		// get the views
 		EditText viewFullName = (EditText) this.findViewById(R.id.full_name);
 		EditText viewEmail = (EditText) this.findViewById(R.id.email);
 		EditText viewUsername = (EditText) this.findViewById(R.id.username);
 		EditText viewPassword = (EditText) this.findViewById(R.id.password);
+		TextView viewLabelSource = (TextView) this
+				.findViewById(R.id.label_source);
 		Spinner spinnerSource = (Spinner) this
 				.findViewById(R.id.spinner_source);
 
+		// reset error messages
+		viewFullName.setError(null);
+		viewEmail.setError(null);
+		viewUsername.setError(null);
+		viewPassword.setError(null);
+		viewLabelSource.setError(null);
+
+		// error message
+		String textErrorFieldRequired = this
+				.getString(R.string.error_field_required);
+
 		if (viewFullName.getText().toString().equals("")) {
-			((TextView) this.findViewById(R.id.error_full_name))
-					.setVisibility(View.VISIBLE);
+			viewFullName.setError(textErrorFieldRequired);
+			viewFullName.requestFocus();
 			return false;
-		} else {
-			((TextView) this.findViewById(R.id.error_full_name))
-					.setVisibility(View.GONE);
 		}
 
 		if (viewEmail.getText().toString().equals("")) {
-			((TextView) this.findViewById(R.id.error_email))
-					.setVisibility(View.VISIBLE);
-			((TextView) this.findViewById(R.id.error_email_format))
-					.setVisibility(View.GONE);
+			viewEmail.setError(textErrorFieldRequired);
+			viewEmail.requestFocus();
 			return false;
 		} else if (!viewEmail.getText().toString().matches("^.+@.+$")) {
-			((TextView) this.findViewById(R.id.error_email))
-					.setVisibility(View.GONE);
-			((TextView) this.findViewById(R.id.error_email_format))
-					.setVisibility(View.VISIBLE);
+			viewEmail.setError(this.getString(R.string.error_invalid_email));
 			return false;
-		} else {
-			((TextView) this.findViewById(R.id.error_email))
-					.setVisibility(View.GONE);
-			((TextView) this.findViewById(R.id.error_email_format))
-					.setVisibility(View.GONE);
 		}
 
 		if (viewUsername.getText().toString().equals("")) {
-			((TextView) this.findViewById(R.id.error_username))
-					.setVisibility(View.VISIBLE);
+			viewUsername.setError(textErrorFieldRequired);
+			viewUsername.requestFocus();
 			return false;
-		} else {
-			((TextView) this.findViewById(R.id.error_username))
-					.setVisibility(View.GONE);
 		}
 
 		if (viewPassword.getText().toString().equals("")) {
-			((TextView) this.findViewById(R.id.error_password))
-					.setVisibility(View.VISIBLE);
+			viewPassword.setError(textErrorFieldRequired);
+			viewPassword.requestFocus();
 			return false;
-		} else {
-			((TextView) this.findViewById(R.id.error_password))
-					.setVisibility(View.GONE);
+		} else if (viewPassword.getText().toString().length() < 4) {
+			viewPassword.setError(this
+					.getString(R.string.error_invalid_password));
+			viewPassword.requestFocus();
+			return false;
 		}
 
 		if (spinnerSource.getSelectedItem() == null) {
-			((TextView) this.findViewById(R.id.error_source))
-					.setVisibility(View.VISIBLE);
+			viewLabelSource.setError(textErrorFieldRequired);
+			viewLabelSource.requestFocus();
 			return false;
-		} else {
-			((TextView) this.findViewById(R.id.error_source))
-					.setVisibility(View.GONE);
 		}
 
 		return true;
@@ -306,5 +318,41 @@ public class SignUpActivity extends ActionBarActivity implements
 			}
 
 		}.execute(Config.NOMP_API_ROOT + "user");
+	}
+
+	private class PauserTask extends AsyncTask<Void, Void, Void> {
+
+		private Context context;
+
+		public PauserTask(Context context) {
+			this.context = context;
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			try {
+				// pause 2 seconds to give a window for system to re-populate
+				// the drop down list
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				return null;
+			}
+			return null;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void onPostExecute(Void result) {
+			if (loading != null) {
+				loading.dismiss();
+			}
+
+			// source actor type drop down list
+			ActorType actorType = new ActorType(context);
+			ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
+					.parentList();
+			populateActorTypeParentList(parentActorTypes);
+		}
+
 	}
 }
