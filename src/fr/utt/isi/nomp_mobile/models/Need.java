@@ -3,10 +3,11 @@ package fr.utt.isi.nomp_mobile.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
-
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -159,12 +160,22 @@ public class Need extends Ticket {
 
 		return this;
 	}
-
+	
 	@Override
 	public List<Need> list() {
+		return list(false);
+	}
+
+	public List<Need> list(boolean isForMe) {
 		// prepare the query
-		String query = "SELECT * FROM " + NOMPDataContract.Need.TABLE_NAME
-				+ " ORDER BY _id DESC";
+		String query = "SELECT * FROM " + NOMPDataContract.Need.TABLE_NAME;
+		if (isForMe) {
+			SharedPreferences userInfo = context.getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+			if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
+				query += " WHERE user='" + userInfo.getString(Config.PREF_KEY_USER_NOMP_ID, "-1") + "'";
+			}
+		}
+		query += " ORDER BY _id DESC";
 
 		SQLiteDatabase readable = this.getReadableDatabase();
 		Cursor c = readable.rawQuery(query, null);

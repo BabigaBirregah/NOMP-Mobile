@@ -3,6 +3,7 @@ package fr.utt.isi.nomp_mobile.activities;
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.fragments.forms.NeedFormFragment;
 import fr.utt.isi.nomp_mobile.fragments.forms.OfferFormFragment;
+import fr.utt.isi.nomp_mobile.models.Ticket;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,10 +21,10 @@ public class TicketFormActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_ticket_form);
 		
 		Intent intent = getIntent();
-		String ticketType = intent.getStringExtra("ticketType") == null ? "need" : intent.getStringExtra("ticketType");
+		String ticketType = intent.getStringExtra("ticketType") == null ? Ticket.TICKET_NEED : intent.getStringExtra("ticketType");
 		
 		Fragment ticketFormFragment;
-		if (ticketType.equals("offer")) {
+		if (ticketType.equals(Ticket.TICKET_OFFER)) {
 			ticketFormFragment = new OfferFormFragment();
 		} else {
 			ticketFormFragment = new NeedFormFragment();

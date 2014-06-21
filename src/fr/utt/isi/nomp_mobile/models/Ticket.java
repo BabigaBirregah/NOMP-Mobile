@@ -11,6 +11,9 @@ import android.database.sqlite.SQLiteDatabase;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
 
 public abstract class Ticket extends BaseModel {
+	
+	public static final String TICKET_NEED = "need";
+	public static final String TICKET_OFFER = "offer";
 
 	protected long _id;
 
