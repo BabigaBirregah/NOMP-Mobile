@@ -78,6 +78,8 @@ public abstract class Type extends BaseModel {
 			this.set_id(c.getInt(c.getColumnIndex(NOMPDataContract.Type._ID)));
 			this.setNompId(c.getString(c
 					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_NOMP_ID)));
+			this.setName(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_NAME)));
 			this.setParent(c.getString(c
 					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_PARENT)));
 			this.setParentName(c.getString(c
@@ -95,8 +97,8 @@ public abstract class Type extends BaseModel {
 
 	public Type retrieve(String typeNompId) {
 		// prepare the query
-		String query = "SELECT * FROM " + getTableName() + " WHERE nomp_id="
-				+ typeNompId + " ORDER BY _id DESC LIMIT 1";
+		String query = "SELECT * FROM " + getTableName() + " WHERE nomp_id='"
+				+ typeNompId + "' ORDER BY _id DESC LIMIT 1";
 
 		SQLiteDatabase readable = this.getReadableDatabase();
 		Cursor c = readable.rawQuery(query, null);
@@ -105,6 +107,8 @@ public abstract class Type extends BaseModel {
 			this.set_id(c.getInt(c.getColumnIndex(NOMPDataContract.Type._ID)));
 			this.setNompId(c.getString(c
 					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_NOMP_ID)));
+			this.setName(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_NAME)));
 			this.setParent(c.getString(c
 					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_PARENT)));
 			this.setParentName(c.getString(c

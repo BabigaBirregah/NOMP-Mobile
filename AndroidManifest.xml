@@ -59,7 +59,7 @@
             android:theme="@style/Theme.AppCompat.Light" >
         </activity>
         <activity
-            android:name="fr.utt.isi.nomp_mobile.TicketListActivity"
+            android:name="fr.utt.isi.nomp_mobile.activities.TicketListActivity"
             android:label="@string/title_activity_ticket_list"
             android:theme="@style/Theme.AppCompat.Light" >
         </activity>

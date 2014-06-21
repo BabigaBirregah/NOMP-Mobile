@@ -14,7 +14,7 @@
             android:id="@+id/ticket_status"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.35"
+            android:layout_weight="0.3"
             android:textSize="18sp"
             android:background="@drawable/border_radius" />
 
@@ -22,7 +22,8 @@
             android:id="@+id/ticket_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.65"
+            android:layout_weight="0.7"
+            android:paddingLeft="15dp"
             android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -37,18 +38,19 @@
             android:id="@+id/label_ticket_creation_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.35"
+            android:layout_weight="0.3"
             android:text="@string/text_label_creation_date"
-            android:textSize="18sp"
-            android:textColor="#DDDDDD" />
+            android:textSize="14sp"
+            android:textColor="#565656" />
 
         <TextView
             android:id="@+id/ticket_creation_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.65"
-            android:textSize="18sp"
-            android:textColor="#DDDDDD" />
+            android:layout_weight="0.7"
+            android:paddingLeft="15dp"
+            android:textSize="14sp"
+            android:textColor="#565656" />
     </LinearLayout>
 
     <LinearLayout
@@ -61,16 +63,17 @@
             android:id="@+id/label_ticket_classification"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.35"
+            android:layout_weight="0.3"
             android:text="@string/text_label_classification"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/ticket_classification"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.65"
-            android:textSize="18sp" />
+            android:layout_weight="0.7"
+            android:paddingLeft="15dp"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -83,16 +86,17 @@
             android:id="@+id/label_ticket_target"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.35"
+            android:layout_weight="0.3"
             android:text="@string/text_label_target"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/ticket_target"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.65"
-            android:textSize="18sp" />
+            android:layout_weight="0.7"
+            android:paddingLeft="15dp"
+            android:textSize="16sp" />
     </LinearLayout>
 
 </LinearLayout>

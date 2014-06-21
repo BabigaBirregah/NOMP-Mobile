@@ -3,6 +3,8 @@ package fr.utt.isi.nomp_mobile.activities;
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.config.Config;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -20,6 +22,8 @@ public class AccountActivity extends ActionBarActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_account);
+		
+		int defaultBridgeColor = Color.parseColor("#FFFFFF");
 
 		// user's full name
 		Intent intent = getIntent();
@@ -28,24 +32,29 @@ public class AccountActivity extends ActionBarActivity implements
 
 		// bridges to ticket form
 		TextView postNeedView = (TextView) findViewById(R.id.label_post_need);
+		((GradientDrawable) postNeedView.getBackground()).setColor(defaultBridgeColor);
 		postNeedView.setClickable(true);
 		postNeedView.setOnClickListener(this);
 
 		TextView postOfferView = (TextView) findViewById(R.id.label_post_offer);
+		((GradientDrawable) postOfferView.getBackground()).setColor(defaultBridgeColor);
 		postOfferView.setClickable(true);
 		postOfferView.setOnClickListener(this);
 
 		// bridges to ticket list
 		TextView myNeedsView = (TextView) findViewById(R.id.label_my_needs);
+		((GradientDrawable) myNeedsView.getBackground()).setColor(defaultBridgeColor);
 		myNeedsView.setClickable(true);
 		myNeedsView.setOnClickListener(this);
 
 		TextView myOffersView = (TextView) findViewById(R.id.label_my_offers);
+		((GradientDrawable) myOffersView.getBackground()).setColor(defaultBridgeColor);
 		myOffersView.setClickable(true);
 		myOffersView.setOnClickListener(this);
 
 		// bridge to settings
 		TextView mySettingsView = (TextView) findViewById(R.id.label_my_settings);
+		((GradientDrawable) mySettingsView.getBackground()).setColor(defaultBridgeColor);
 		mySettingsView.setClickable(true);
 		mySettingsView.setOnClickListener(this);
 	}
@@ -91,9 +100,11 @@ public class AccountActivity extends ActionBarActivity implements
 			intent = new Intent(this, TicketFormActivity.class);
 			intent.putExtra("ticketType", "offer");
 		} else if (v.getId() == R.id.label_my_needs) {
-
+			intent = new Intent(this, TicketListActivity.class);
+			intent.putExtra("ticketType", "need");
 		} else if (v.getId() == R.id.label_my_offers) {
-
+			intent = new Intent(this, TicketListActivity.class);
+			intent.putExtra("ticketType", "offer");
 		} else if (v.getId() == R.id.label_my_settings) {
 			intent = new Intent(this, SettingsActivity.class);
 		} else {

@@ -98,6 +98,7 @@ public class OfferFormFragment extends TicketFormFragment {
 		Intent intent = new Intent(getActivity().getBaseContext(), TicketPageActivity.class);
 		
 		// put arguments for display, eventually the ticket type and ticket id
+		intent.putExtra("parentActivity", "TicketFormActivity");
 		intent.putExtra("ticketType", "offer");
 		intent.putExtra("ticketId", ticketId);
 		
