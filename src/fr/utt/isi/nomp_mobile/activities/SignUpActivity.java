@@ -7,6 +7,7 @@ import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.adapters.TypeSpinnerArrayAdapter;
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.models.ActorType;
+import fr.utt.isi.nomp_mobile.tasks.PauserTask;
 import fr.utt.isi.nomp_mobile.tasks.PostRequestTask;
 import fr.utt.isi.nomp_mobile.utils.Utils;
 import android.app.ProgressDialog;
@@ -15,7 +16,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -55,7 +55,22 @@ public class SignUpActivity extends ActionBarActivity implements
 			loading.setMessage("Please wait");
 			loading.show();
 
-			new PauserTask(this).execute();
+			new PauserTask() {
+
+				@Override
+				protected void onPostExecute(Void result) {
+					// source actor type drop down list
+					ActorType actorType = new ActorType(SignUpActivity.this);
+					ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
+							.parentList();
+					populateActorTypeParentList(parentActorTypes);
+
+					if (loading != null) {
+						loading.dismiss();
+					}
+				}
+
+			}.execute(2000);
 		}
 	}
 
@@ -320,39 +335,4 @@ public class SignUpActivity extends ActionBarActivity implements
 		}.execute(Config.NOMP_API_ROOT + "user");
 	}
 
-	private class PauserTask extends AsyncTask<Void, Void, Void> {
-
-		private Context context;
-
-		public PauserTask(Context context) {
-			this.context = context;
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			try {
-				// pause 2 seconds to give a window for system to re-populate
-				// the drop down list
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return null;
-			}
-			return null;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void onPostExecute(Void result) {
-			if (loading != null) {
-				loading.dismiss();
-			}
-
-			// source actor type drop down list
-			ActorType actorType = new ActorType(context);
-			ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
-					.parentList();
-			populateActorTypeParentList(parentActorTypes);
-		}
-
-	}
 }

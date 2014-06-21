@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -25,6 +24,7 @@ import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.models.ActorType;
 import fr.utt.isi.nomp_mobile.models.Classification;
 import fr.utt.isi.nomp_mobile.models.Type;
+import fr.utt.isi.nomp_mobile.tasks.PauserTask;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -49,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity {
 	private static SharedPreferences localizationPreferences;
 	private static SharedPreferences classificationPreferences;
 	private static SharedPreferences actorTypePreferences;
-	
+
 	private static ProgressDialog loading = null;
 
 	@Override
@@ -57,15 +57,38 @@ public class SettingsActivity extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 
 		context = this;
-		
+
 		populateParentLists();
-		
+
 		if (classificationEntries.length == 0 || actorTypeEntries.length == 0) {
 			loading = new ProgressDialog(this);
 			loading.setTitle("Loading");
 			loading.setMessage("Please wait");
 			loading.show();
-			new PauserTask().execute();
+
+			new PauserTask() {
+
+				@SuppressWarnings("deprecation")
+				@Override
+				protected void onPostExecute(Void result) {
+					populateParentLists();
+					((ListPreference) context
+							.findPreference("classification_list"))
+							.setEntries(classificationEntries);
+					((ListPreference) context
+							.findPreference("classification_list"))
+							.setEntryValues(classificationEntryValues);
+					((ListPreference) context.findPreference("target_list"))
+							.setEntries(actorTypeEntries);
+					((ListPreference) context.findPreference("target_list"))
+							.setEntryValues(actorTypeEntryValues);
+
+					if (loading != null) {
+						loading.dismiss();
+					}
+				}
+
+			}.execute(2000);
 		}
 
 		// prepare shared preferences
@@ -76,11 +99,13 @@ public class SettingsActivity extends PreferenceActivity {
 		actorTypePreferences = getSharedPreferences(
 				Config.PREF_NAME_ACTOR_TYPE, Context.MODE_PRIVATE);
 	}
-	
+
 	@Override
 	public void onBackPressed() {
-		SharedPreferences userPreferences = getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
-		String userFullName = userPreferences.getString(Config.PREF_KEY_USER_NAME, null);
+		SharedPreferences userPreferences = getSharedPreferences(
+				Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+		String userFullName = userPreferences.getString(
+				Config.PREF_KEY_USER_NAME, null);
 		if (userFullName != null) {
 			Intent intent = new Intent(this, AccountActivity.class);
 			intent.putExtra(Config.PREF_KEY_USER_NAME, userFullName);
@@ -130,7 +155,7 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		
+
 		setupSimplePreferencesScreen();
 	}
 
@@ -431,31 +456,5 @@ public class SettingsActivity extends PreferenceActivity {
 			bindPreferenceSummaryToValue(findPreference("sub_target_list"));
 		}
 	}
-	
-	public static class PauserTask extends AsyncTask<Void, Void, Void> {
 
-		@Override
-		protected Void doInBackground(Void... params) {
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return null;
-			}
-			return null;
-		}
-		
-		@SuppressWarnings("deprecation")
-		@Override
-		protected void onPostExecute(Void result) {
-			populateParentLists();
-			((ListPreference) context.findPreference("classification_list")).setEntries(classificationEntries);
-			((ListPreference) context.findPreference("classification_list")).setEntryValues(classificationEntryValues);
-			((ListPreference) context.findPreference("target_list")).setEntries(actorTypeEntries);
-			((ListPreference) context.findPreference("target_list")).setEntryValues(actorTypeEntryValues);
-			if (loading != null) {
-				loading.dismiss();
-			}
-		}
-		
-	}
 }

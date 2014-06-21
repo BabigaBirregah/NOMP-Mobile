@@ -20,6 +20,7 @@ import fr.utt.isi.nomp_mobile.models.ActorType;
 import fr.utt.isi.nomp_mobile.models.Classification;
 import fr.utt.isi.nomp_mobile.models.Status;
 import fr.utt.isi.nomp_mobile.models.Type;
+import fr.utt.isi.nomp_mobile.tasks.PauserTask;
 import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -68,7 +69,7 @@ public abstract class TicketFormFragment extends Fragment {
 	protected static String postalCode = "";
 	protected static String city = "";
 	protected static String country = "";
-	
+
 	protected static ProgressDialog loading = null;
 
 	@Override
@@ -86,50 +87,54 @@ public abstract class TicketFormFragment extends Fragment {
 
 		setHasOptionsMenu(true);
 
-		// classification drop down list
+		// classification parent list
 		Classification classification = new Classification(getActivity());
 		ArrayList<Classification> parentClassifications = (ArrayList<Classification>) classification
 				.parentList();
 
-		// create an adapter for spinner
-		TypeSpinnerArrayAdapter spinnerClassificationAdapter = new TypeSpinnerArrayAdapter(
-				getActivity(), android.R.layout.simple_spinner_item,
-				parentClassifications);
-		spinnerClassificationAdapter
-				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-		// set adapter to spinner
-		Spinner spinnerClassification = (Spinner) view
-				.findViewById(R.id.spinner_classification);
-		spinnerClassification.setAdapter(spinnerClassificationAdapter);
-
-		// set listener to spinner to show correspondent sub-spinner
-		spinnerClassification
-				.setOnItemSelectedListener(new TypeSpinnerOnItemSelectedListener(
-						Type.TYPE_CLASSIFICATION,
-						R.id.spinner_sub_classification));
-
-		// classification drop down list
+		// target actor type parent list
 		ActorType actorType = new ActorType(getActivity());
 		ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
 				.parentList();
 
-		// create an adapter for spinner
-		TypeSpinnerArrayAdapter spinnerTargetAdapter = new TypeSpinnerArrayAdapter(
-				getActivity(), android.R.layout.simple_spinner_item,
-				parentActorTypes);
-		spinnerTargetAdapter
-				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// populate spinner
+		if (parentClassifications.size() > 0 && parentActorTypes.size() > 0) {
+			populateTypeParentList(Type.TYPE_CLASSIFICATION,
+					parentClassifications, view);
+			populateTypeParentList(Type.TYPE_ACTOR_TYPE, parentActorTypes, view);
+		} else {
+			loading = new ProgressDialog(getActivity());
+			loading.setTitle("Loading");
+			loading.setMessage("Please wait");
+			loading.show();
 
-		// set adapter to spinner
-		Spinner spinnerTarget = (Spinner) view
-				.findViewById(R.id.spinner_target);
-		spinnerTarget.setAdapter(spinnerTargetAdapter);
+			new PauserTask() {
 
-		// set listener to spinner to show correspondent sub-spinner
-		spinnerTarget
-				.setOnItemSelectedListener(new TypeSpinnerOnItemSelectedListener(
-						Type.TYPE_ACTOR_TYPE, R.id.spinner_sub_target));
+				@Override
+				protected void onPostExecute(Void result) {
+					// classification parent list
+					Classification classification = new Classification(
+							getActivity());
+					ArrayList<Classification> parentClassifications = (ArrayList<Classification>) classification
+							.parentList();
+
+					// target actor type parent list
+					ActorType actorType = new ActorType(getActivity());
+					ArrayList<ActorType> parentActorTypes = (ArrayList<ActorType>) actorType
+							.parentList();
+
+					populateTypeParentList(Type.TYPE_CLASSIFICATION,
+							parentClassifications, null);
+					populateTypeParentList(Type.TYPE_ACTOR_TYPE,
+							parentActorTypes, null);
+
+					if (loading != null) {
+						loading.dismiss();
+					}
+				}
+
+			}.execute(2000);
+		}
 
 		// assign actions on period buttons to show date picker
 		Button buttonPeriodFrom = (Button) view
@@ -167,6 +172,8 @@ public abstract class TicketFormFragment extends Fragment {
 
 			@Override
 			public void onClick(View v) {
+				// TODO: disable the original keyboard input of addressView
+
 				// build a pop-up dialog for address input
 				AlertDialog.Builder builder = new AlertDialog.Builder(
 						getActivity());
@@ -232,6 +239,34 @@ public abstract class TicketFormFragment extends Fragment {
 		return view;
 	}
 
+	protected void populateTypeParentList(String typeType,
+			List<?> typeParentList, View parentView) {
+		// create an adapter for spinner
+		TypeSpinnerArrayAdapter spinnerTypeAdapter = new TypeSpinnerArrayAdapter(
+				getActivity(), android.R.layout.simple_spinner_item,
+				typeParentList);
+		spinnerTypeAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		int spinnerViewId = typeType.equals(Type.TYPE_CLASSIFICATION) ? R.id.spinner_classification
+				: R.id.spinner_target;
+
+		// get the right spinner view
+		Spinner spinnerType = (Spinner) (parentView == null ? getActivity()
+				.findViewById(spinnerViewId) : parentView
+				.findViewById(spinnerViewId));
+
+		// set adapter
+		spinnerType.setAdapter(spinnerTypeAdapter);
+
+		// set listener to spinner to show correspondent sub-spinner
+		spinnerType
+				.setOnItemSelectedListener(new TypeSpinnerOnItemSelectedListener(
+						typeType,
+						typeType.equals(Type.TYPE_CLASSIFICATION) ? R.id.spinner_sub_classification
+								: R.id.spinner_sub_target));
+	}
+
 	protected void checkGPS() {
 		LocationManager locationManager = (LocationManager) getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
@@ -239,8 +274,6 @@ public abstract class TicketFormFragment extends Fragment {
 			isGPSChecked = false;
 
 			// notice user to turn on the GPS
-			// TODO: make an alert dialog, if cancelled, return to home activity
-			// (eventually it will be a list)
 			Toast gpsRequiredToast = Toast
 					.makeText(
 							getActivity(),
@@ -442,7 +475,7 @@ public abstract class TicketFormFragment extends Fragment {
 		loading.setTitle("Geocoding");
 		loading.setMessage("Please wait");
 		loading.show();
-		
+
 		new AsyncTask<String, Void, String>() {
 
 			@Override
@@ -478,8 +511,9 @@ public abstract class TicketFormFragment extends Fragment {
 					TextView geometryView = (TextView) getActivity()
 							.findViewById(R.id.geometry);
 					geometryView.setText(result);
-					
-					Toast noticeToast = Toast.makeText(getActivity(), "Please press again to submit", Toast.LENGTH_LONG);
+
+					Toast noticeToast = Toast.makeText(getActivity(),
+							"Please press again to submit", Toast.LENGTH_LONG);
 					noticeToast.show();
 				}
 			}
@@ -537,22 +571,26 @@ public abstract class TicketFormFragment extends Fragment {
 		switch (item.getItemId()) {
 		case R.id.action_send:
 			// pre-check for geometry
-			TextView geometryView = (TextView) getActivity().findViewById(R.id.geometry);
+			TextView geometryView = (TextView) getActivity().findViewById(
+					R.id.geometry);
 			String geometry = (String) geometryView.getText();
-			EditText addressView = (EditText) getActivity().findViewById(R.id.location);
+			EditText addressView = (EditText) getActivity().findViewById(
+					R.id.location);
 			String address = addressView.getText().toString();
-			
+
 			if (address == null || address.equals("")) {
-				addressView.setError(getActivity().getString(R.string.error_field_required));
+				addressView.setError(getActivity().getString(
+						R.string.error_field_required));
 				return true;
 			} else if (geometry == null || geometry.equals("")) {
 				// geocode the input address to populate the geometry
 				populateGeometryByAddress(address);
-				
-				// force the user to submit again to ensure that the geometry is populated
+
+				// force the user to submit again to ensure that the geometry is
+				// populated
 				return true;
 			}
-			
+
 			long ticketId = storeTicket();
 			if (ticketId != -1) {
 				displayTicket(ticketId);
@@ -572,13 +610,14 @@ public abstract class TicketFormFragment extends Fragment {
 
 	protected ContentValues getBaseFieldValues() {
 		Activity context = getActivity();
-		String textErrorFieldRequired = context.getString(R.string.error_field_required);
-		
+		String textErrorFieldRequired = context
+				.getString(R.string.error_field_required);
+
 		TextView geometryView = (TextView) context.findViewById(R.id.geometry);
 		String geometry = (String) geometryView.getText();
 		EditText addressView = (EditText) context.findViewById(R.id.location);
 		String address = addressView.getText().toString();
-		
+
 		// handle errors
 		addressView.setError(null);
 		if (address == null || address.equals("")) {
@@ -591,7 +630,7 @@ public abstract class TicketFormFragment extends Fragment {
 
 		EditText nameView = (EditText) context.findViewById(R.id.title);
 		String name = nameView.getText().toString();
-		
+
 		// handle errors
 		nameView.setError(null);
 		if (name == null || name.equals("")) {
@@ -602,7 +641,7 @@ public abstract class TicketFormFragment extends Fragment {
 		EditText descriptionView = (EditText) context
 				.findViewById(R.id.description);
 		String description = descriptionView.getText().toString();
-		
+
 		// handle errors
 		descriptionView.setError(null);
 		if (description == null || description.equals("")) {
@@ -619,9 +658,10 @@ public abstract class TicketFormFragment extends Fragment {
 		// get classification item
 		Classification classificationItem = (Classification) subClassificationSpinner
 				.getSelectedItem();
-		
+
 		// handle errors
-		TextView labelClassificationView = (TextView) context.findViewById(R.id.label_classification);
+		TextView labelClassificationView = (TextView) context
+				.findViewById(R.id.label_classification);
 		labelClassificationView.setError(null);
 		if (classificationItem == null) {
 			labelClassificationView.setError(textErrorFieldRequired);
@@ -641,15 +681,16 @@ public abstract class TicketFormFragment extends Fragment {
 		// get target actor type item
 		ActorType actorTypeItem = (ActorType) subTargetSpinner
 				.getSelectedItem();
-		
+
 		// handle errors
-		TextView labelTargetView = (TextView) context.findViewById(R.id.label_target);
+		TextView labelTargetView = (TextView) context
+				.findViewById(R.id.label_target);
 		labelTargetView.setError(null);
 		if (actorTypeItem == null) {
 			labelTargetView.setError(textErrorFieldRequired);
 			return null;
 		}
-		
+
 		String targetActorType = actorTypeItem.getNompId();
 		String targetActorTypeName = actorTypeItem.getName();
 
@@ -676,11 +717,13 @@ public abstract class TicketFormFragment extends Fragment {
 		} catch (ParseException e) {
 			return null;
 		}
-		
+
 		// handle errors
-		TextView labelPeriodView = (TextView) context.findViewById(R.id.label_period);
+		TextView labelPeriodView = (TextView) context
+				.findViewById(R.id.label_period);
 		labelPeriodView.setError(null);
-		if (startDate == null || startDate.equals("") || endDate == null || endDate.equals("")) {
+		if (startDate == null || startDate.equals("") || endDate == null
+				|| endDate.equals("")) {
 			labelPeriodView.setError(textErrorFieldRequired);
 		}
 
