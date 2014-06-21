@@ -2,6 +2,7 @@ package fr.utt.isi.nomp_mobile.activities;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.fragments.pages.NeedPageFragment;
+import fr.utt.isi.nomp_mobile.fragments.pages.OfferPageFragment;
 import android.os.Bundle;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
@@ -30,7 +31,7 @@ public class TicketPageActivity extends ActionBarActivity {
 		
 		Fragment ticketPageFragment;
 		if (ticketType.equals("offer")) {
-			ticketPageFragment = new NeedPageFragment();
+			ticketPageFragment = new OfferPageFragment();
 		} else {
 			ticketPageFragment = new NeedPageFragment();
 		}

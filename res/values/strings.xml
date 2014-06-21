@@ -88,8 +88,7 @@
     <string name="text_error_description">Description required</string>
 
     <!-- Text for ticket page -->
-    <string name="text_ticket_period_text_from">From </string>
-    <string name="text_ticket_period_text_to"> to </string>
+    <string name="text_ticket_label_period">Available:</string>
     
     <!-- Text for ticket list -->
     <string name="text_label_creation_date">Posted at </string>
