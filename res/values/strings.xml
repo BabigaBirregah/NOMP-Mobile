@@ -57,7 +57,7 @@
     <string name="text_hint_country">Country</string>
     <string name="text_address_dialog_button_positive">OK</string>
     <string name="text_address_dialog_button_negative">Cancel</string>
-    
+
     <!-- Text for account page -->
     <string name="text_welcome">Welcome </string>
     <string name="text_label_post">POST TICKET</string>
@@ -90,6 +90,9 @@
     <!-- Text for ticket page -->
     <string name="text_ticket_period_text_from">From </string>
     <string name="text_ticket_period_text_to"> to </string>
+    
+    <!-- Text for ticket list -->
+    <string name="text_label_creation_date">Posted at </string>
 
     <!-- Text for action bar items -->
     <string name="text_ticket_form_send">Send ticket</string>
@@ -99,7 +102,8 @@
     <string name="title_activity_ticket_page">View</string>
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="title_activity_account">My Account</string>
-    
+    <string name="title_activity_ticket_list">My Tickets</string>
+
     <!-- Text for exit -->
     <string name="press_once_again_to_exit">Press once again to exit</string>
 

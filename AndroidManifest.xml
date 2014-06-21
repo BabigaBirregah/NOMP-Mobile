@@ -34,11 +34,6 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <activity
-            android:name="fr.utt.isi.nomp_mobile.activities.TicketPageActivity"
-            android:label="@string/title_activity_ticket_page"
-            android:theme="@style/Theme.AppCompat.Light" >
-        </activity>
-        <activity
             android:name="fr.utt.isi.nomp_mobile.activities.SignUpActivity"
             android:label="@string/title_activity_sign_up"
             android:theme="@style/Theme.AppCompat.Light" >
@@ -56,6 +51,16 @@
         <activity
             android:name="fr.utt.isi.nomp_mobile.activities.TicketFormActivity"
             android:label="@string/title_activity_ticket_form"
+            android:theme="@style/Theme.AppCompat.Light" >
+        </activity>
+        <activity
+            android:name="fr.utt.isi.nomp_mobile.activities.TicketPageActivity"
+            android:label="@string/title_activity_ticket_page"
+            android:theme="@style/Theme.AppCompat.Light" >
+        </activity>
+        <activity
+            android:name="fr.utt.isi.nomp_mobile.TicketListActivity"
+            android:label="@string/title_activity_ticket_list"
             android:theme="@style/Theme.AppCompat.Light" >
         </activity>
     </application>

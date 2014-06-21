@@ -93,6 +93,33 @@ public abstract class Type extends BaseModel {
 		return this;
 	}
 
+	public Type retrieve(String typeNompId) {
+		// prepare the query
+		String query = "SELECT * FROM " + getTableName() + " WHERE nomp_id="
+				+ typeNompId + " ORDER BY _id DESC LIMIT 1";
+
+		SQLiteDatabase readable = this.getReadableDatabase();
+		Cursor c = readable.rawQuery(query, null);
+
+		if (c.moveToFirst()) {
+			this.set_id(c.getInt(c.getColumnIndex(NOMPDataContract.Type._ID)));
+			this.setNompId(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_NOMP_ID)));
+			this.setParent(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_PARENT)));
+			this.setParentName(c.getString(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_PARENT_NAME)));
+			this.setParent(c.getInt(c
+					.getColumnIndex(NOMPDataContract.Type.COLUMN_NAME_IS_PARENT)) == 1 ? true
+					: false);
+		}
+
+		c.close();
+		readable.close();
+
+		return this;
+	}
+
 	protected Cursor queryCursor(String query) {
 		// check update
 		SharedPreferences typeSettings = null;
