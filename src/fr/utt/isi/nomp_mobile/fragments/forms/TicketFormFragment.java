@@ -591,17 +591,7 @@ public abstract class TicketFormFragment extends Fragment {
 				return true;
 			}
 
-			long ticketId = storeTicket();
-			if (ticketId != -1) {
-				displayTicket(ticketId);
-			} else {
-				Toast errorToast = Toast
-						.makeText(
-								getActivity(),
-								"An error occured while adding ticket. Please check your information.",
-								Toast.LENGTH_LONG);
-				errorToast.show();
-			}
+			storeTicket();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -670,10 +660,7 @@ public abstract class TicketFormFragment extends Fragment {
 
 		String classification = classificationItem.getNompId();
 		String classificationName = classificationItem.getName();
-
-		String sourceActorType = "s1d2f3";
-		String sourceActorTypeName = "test";
-
+		
 		// get sub target actor type spinner
 		Spinner subTargetSpinner = (Spinner) context
 				.findViewById(R.id.spinner_sub_target);
@@ -694,10 +681,6 @@ public abstract class TicketFormFragment extends Fragment {
 		String targetActorType = actorTypeItem.getNompId();
 		String targetActorTypeName = actorTypeItem.getName();
 
-		String contactPhone = "";
-		String contactMobile = "";
-		String contactEmail = "yipeng.huang@utt.fr";
-
 		// Dates
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
 		Button buttonPeriodFrom = (Button) context
@@ -705,7 +688,8 @@ public abstract class TicketFormFragment extends Fragment {
 		String startDate = (String) buttonPeriodFrom.getText();
 		try {
 			startDate = dateFormat.format(dateFormat.parse(startDate));
-		} catch (ParseException e1) {
+		} catch (ParseException e) {
+			e.printStackTrace();
 			return null;
 		}
 
@@ -715,6 +699,7 @@ public abstract class TicketFormFragment extends Fragment {
 		try {
 			endDate = dateFormat.format(dateFormat.parse(endDate));
 		} catch (ParseException e) {
+			e.printStackTrace();
 			return null;
 		}
 
@@ -733,11 +718,28 @@ public abstract class TicketFormFragment extends Fragment {
 			quantityString = "0";
 		}
 		int quantity = Integer.parseInt(quantityString);
+		
+		// info about user
+		String user = null;
+		String sourceActorType = "s1d2f3";
+		String sourceActorTypeName = "test";
+		String contactPhone = "";
+		String contactMobile = "";
+		String contactEmail = "yipeng.huang@utt.fr";
+		
+		SharedPreferences userInfo = getActivity().getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+		if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
+			user = userInfo.getString(Config.PREF_KEY_USER_NOMP_ID, null);
+			sourceActorType = userInfo.getString(Config.PREF_KEY_USER_ACTOR_TYPE, null);
+			sourceActorTypeName = userInfo.getString(Config.PREF_KEY_USER_ACTOR_TYPE_NAME, null);
+			contactPhone = "";
+			contactMobile = "";
+			contactEmail = userInfo.getString(Config.PREF_KEY_USER_EMAIL, null);
+		}
 
 		boolean isActive = true;
 		int statut = Status.OPEN;
 		String reference = null;
-		String user = null;
 		String matched = null;
 
 		ContentValues baseValues = new ContentValues();
@@ -745,23 +747,23 @@ public abstract class TicketFormFragment extends Fragment {
 		baseValues.put("description", description);
 		baseValues.put("keywords", keywords);
 		baseValues.put("classification", classification);
-		baseValues.put("classificationName", classificationName);
-		baseValues.put("sourceActorType", sourceActorType);
-		baseValues.put("sourceActorTypeName", sourceActorTypeName);
-		baseValues.put("targetActorType", targetActorType);
-		baseValues.put("targetActorTypeName", targetActorTypeName);
-		baseValues.put("contactPhone", contactPhone);
-		baseValues.put("contactMobile", contactMobile);
-		baseValues.put("contactEmail", contactEmail);
+		baseValues.put("classification_name", classificationName);
+		baseValues.put("source_actor_type", sourceActorType);
+		baseValues.put("source_actor_type_name", sourceActorTypeName);
+		baseValues.put("target_actor_type", targetActorType);
+		baseValues.put("target_actor_type_name", targetActorTypeName);
+		baseValues.put("contact_phone", contactPhone);
+		baseValues.put("contact_mobile", contactMobile);
+		baseValues.put("contact_email", contactEmail);
 		// baseValues.put("creationDate", creationDate.toString());
-		baseValues.put("startDate", startDate);
-		baseValues.put("endDate", endDate);
+		baseValues.put("start_date", startDate);
+		baseValues.put("end_date", endDate);
 		// baseValues.put("expirationDate", expirationDate.toString());
 		// baseValues.put("updateDate", updateDate.toString());
 		baseValues.put("quantity", quantity);
 		baseValues.put("geometry", geometry);
 		baseValues.put("address", address);
-		baseValues.put("isActive", isActive);
+		baseValues.put("is_active", isActive);
 		baseValues.put("statut", statut);
 		baseValues.put("reference", reference);
 		baseValues.put("user", user);
@@ -770,7 +772,7 @@ public abstract class TicketFormFragment extends Fragment {
 		return baseValues;
 	}
 
-	public abstract long storeTicket();
+	public abstract void storeTicket();
 
 	public abstract void displayTicket(long ticketId);
 

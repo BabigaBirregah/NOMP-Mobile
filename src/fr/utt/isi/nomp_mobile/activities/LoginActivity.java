@@ -8,6 +8,8 @@ import org.json.JSONObject;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.config.Config;
+import fr.utt.isi.nomp_mobile.models.Need;
+import fr.utt.isi.nomp_mobile.models.Offer;
 import fr.utt.isi.nomp_mobile.tasks.PostRequestTask;
 import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import fr.utt.isi.nomp_mobile.utils.Utils;
@@ -203,15 +205,21 @@ public class LoginActivity extends ActionBarActivity {
 								.getSharedPreferences(Config.PREF_NAME_USER,
 										Context.MODE_PRIVATE);
 						Editor editor = userInfo.edit();
-						
+
 						// store user nomp id in shared preferences
 						editor.putString(Config.PREF_KEY_USER_NOMP_ID,
 								userNompId);
-						
+
 						// put the flag of existence
 						editor.putBoolean(Config.PREF_KEY_USER_IS_LOGGED, true);
-						
+
 						editor.commit();
+
+						showProgress(true);
+
+						// get tickets of user
+						new Need(getContext()).apiGet();
+						new Offer(getContext()).apiGet();
 
 						// get user profile
 						new RequestTask(getContext(), "GET") {
@@ -278,8 +286,11 @@ public class LoginActivity extends ActionBarActivity {
 														Toast.LENGTH_LONG);
 										errorToast.show();
 										return;
+									} finally {
+										showProgress(false);
 									}
 								} else {
+									showProgress(false);
 									Toast errorToast = Toast
 											.makeText(
 													getContext(),
