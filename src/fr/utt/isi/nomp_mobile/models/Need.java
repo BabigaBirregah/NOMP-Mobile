@@ -1,15 +1,23 @@
 package fr.utt.isi.nomp_mobile.models;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
+import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 public class Need extends Ticket {
 
@@ -131,6 +139,11 @@ public class Need extends Ticket {
 	@Override
 	public String getTableName() {
 		return NOMPDataContract.Need.TABLE_NAME;
+	}
+
+	@Override
+	public int getPrice() {
+		return budget;
 	}
 
 	@Override
@@ -296,6 +309,127 @@ public class Need extends Ticket {
 
 		writable.close();
 		return nbLines;
+	}
+
+	public void apiGet() {
+		SharedPreferences userInfo = context.getSharedPreferences(
+				Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+		String userNompId = userInfo
+				.getString(Config.PREF_KEY_USER_NOMP_ID, "");
+
+		new RequestTask(context, "GET") {
+
+			@Override
+			public void onPostExecute(String result) {
+				if (result == null) {
+					Toast errorToast = Toast.makeText(context,
+							"Some error occurs during request.",
+							Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.MAL_FORMED_URL_EXCEPTION)) {
+					Toast errorToast = Toast.makeText(context,
+							"Request server not found.", Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.IO_EXCEPTION)) {
+					Toast errorToast = Toast
+							.makeText(
+									context,
+									"Unable to retrieve data from server. Please try again later.",
+									Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.REQUEST_ERROR)) {
+					Toast errorToast = Toast.makeText(context,
+							"Request failed.", Toast.LENGTH_LONG);
+					errorToast.show();
+				} else {
+
+					try {
+						JSONArray jsonArray = new JSONArray(result);
+						if (jsonArray.length() > 0) {
+							Need[] needs = new Need[jsonArray.length()];
+							for (int i = 0; i < jsonArray.length(); i++) {
+								// parse json object
+								JSONObject jsonObject = jsonArray
+										.getJSONObject(i);
+
+								needs[i] = parseJson(jsonObject);
+							}
+
+							// delete all data from database to simply avoid
+							// update/insert decisions
+							deleteAll();
+							needs = (Need[]) insertAll(needs);
+						} else {
+							Toast errorToast = Toast.makeText(context,
+									"No available needs on server.",
+									Toast.LENGTH_LONG);
+							errorToast.show();
+						}
+					} catch (JSONException e) {
+						Toast errorToast = Toast.makeText(context,
+								"Failed to parse response from server.",
+								Toast.LENGTH_LONG);
+						errorToast.show();
+						e.printStackTrace();
+					}
+
+				}
+
+			}
+
+		}.execute(Config.NOMP_API_ROOT + "user/" + userNompId
+				+ "/need/list?user_id=" + userNompId);
+	}
+
+	public Need parseJson(JSONObject jsonObject) {
+		Need need = new Need(context);
+		need.setNompId(jsonObject.optString("_id"));
+		need.setName(jsonObject.optString("name"));
+		need.setClassification(jsonObject.optString("classification"));
+		need.setClassificationName(jsonObject.optString("classification_name"));
+		need.setSourceActorType(jsonObject.optString("source_actor_type"));
+		need.setSourceActorTypeName(jsonObject
+				.optString("source_actor_type_name"));
+		need.setTargetActorType(jsonObject.optString("target_actor_type"));
+		need.setTargetActorTypeName(jsonObject
+				.optString("target_actor_type_name"));
+		need.setContactPhone(jsonObject.optString("contact_phone"));
+		need.setContactMobile(jsonObject.optString("contact_mobile"));
+		need.setContactEmail(jsonObject.optString("contact_email"));
+		need.setQuantity(Integer.parseInt(jsonObject.optString("quantity")));
+		need.setDescription(jsonObject.optString("description"));
+		need.setKeywords(jsonObject.optString("keywords"));
+		need.setAddress(jsonObject.optString("address"));
+		need.setGeometry(jsonObject.optString("geometry"));
+
+		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+		try {
+			need.setCreationDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("creation_date"))));
+			need.setEndDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("end_date"))));
+			need.setStartDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("start_date"))));
+			need.setExpirationDate(dateFormat.format(dateFormat
+					.parse(jsonObject.optString("expiration_date"))));
+			need.setUpdateDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("update_date"))));
+		} catch (ParseException e) {
+
+		}
+
+		// should be always true, or do
+		// jsonObject.optString("is_active").equals("true")
+		// ? true : false
+		need.setActive(true);
+		need.setStatut(Integer.parseInt(jsonObject.optString("statut")));
+		need.setReference(jsonObject.optString("reference"));
+		need.setUser(jsonObject.optString("user"));
+		need.setMatched(jsonObject.optString("matched"));
+
+		need.setBudget(Integer.parseInt(jsonObject.optString("budget")));
+
+		return need;
 	}
 
 	public int getBudget() {

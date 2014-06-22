@@ -8,10 +8,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
 
 public abstract class Ticket extends BaseModel {
-	
+
 	public static final String TICKET_NEED = "need";
 	public static final String TICKET_OFFER = "offer";
 
@@ -328,6 +329,94 @@ public abstract class Ticket extends BaseModel {
 		this.matched = matched;
 	}
 
+	public Ticket[] insertAll(Ticket[] tickets) {
+		// open database writable connection
+		SQLiteDatabase writable = this.getWritableDatabase();
+
+		// prepare the insert query
+		String query = "INSERT INTO "
+				+ getTableName()
+				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, )";
+
+		// compile the query
+		SQLiteStatement statement = writable.compileStatement(query);
+
+		// begin transaction
+		writable.beginTransaction();
+
+		for (int i = 0; i < tickets.length; i++) {
+			Ticket ticket = tickets[i];
+
+			// bind the fields to the statement
+			statement.clearBindings();
+			statement.bindString(2, ticket.getNompId());
+			statement.bindString(3, ticket.getName());
+			statement.bindString(4, ticket.getClassification());
+			statement.bindString(5, ticket.getClassificationName());
+			statement.bindString(6, ticket.getSourceActorType());
+			statement.bindString(7, ticket.getSourceActorTypeName());
+			statement.bindString(8, ticket.getTargetActorType());
+			statement.bindString(9, ticket.getTargetActorTypeName());
+			statement.bindString(10, ticket.getContactPhone());
+			statement.bindString(11, ticket.getContactMobile());
+			statement.bindString(12, ticket.getContactEmail());
+			statement.bindLong(13, ticket.getQuantity());
+			statement.bindString(14, ticket.getDescription());
+
+			if (ticket.getKeywords() != null) {
+				statement.bindString(15, ticket.getKeywords());
+			} else {
+				statement.bindNull(15);
+			}
+
+			statement.bindString(16, ticket.getAddress());
+
+			if (ticket.getGeometry() != null) {
+				statement.bindString(17, ticket.getGeometry());
+			} else {
+				statement.bindNull(17);
+			}
+
+			statement.bindString(18, ticket.getCreationDate());
+			statement.bindString(19, ticket.getEndDate());
+			statement.bindString(20, ticket.getStartDate());
+			statement.bindString(21, ticket.getExpirationDate());
+			statement.bindString(22, ticket.getUpdateDate());
+			statement.bindLong(23, ticket.isActive() ? 1 : 0);
+			statement.bindLong(24, ticket.getStatut());
+
+			if (ticket.getReference() != null) {
+				statement.bindString(25, ticket.getReference());
+			} else {
+				statement.bindNull(25);
+			}
+
+			if (ticket.getUser() != null) {
+				statement.bindString(26, ticket.getUser());
+			} else {
+				statement.bindNull(26);
+			}
+
+			if (ticket.getMatched() != null) {
+				statement.bindString(27, ticket.getMatched());
+			} else {
+				statement.bindNull(27);
+			}
+
+			statement.bindLong(28, ticket.getPrice());
+
+			// commit the execution of statement
+			tickets[i].set_id(statement.executeInsert());
+		}
+
+		// commit the transaction
+		writable.setTransactionSuccessful();
+		writable.endTransaction();
+		writable.close();
+
+		return tickets;
+	}
+
 	public ContentValues getBaseContentValues() {
 		ContentValues mContentValues = new ContentValues();
 
@@ -408,13 +497,12 @@ public abstract class Ticket extends BaseModel {
 
 		SQLiteDatabase readable = this.getReadableDatabase();
 		Cursor c = readable.rawQuery(query, null);
-		
+
 		if (c.moveToFirst()) {
 			this.setNompId(c.getString(c
 					.getColumnIndex(NOMPDataContract.Ticket.COLUMN_NAME_NOMP_ID)));
 
-			this.set_id(c.getInt(c
-					.getColumnIndex(NOMPDataContract.Ticket._ID)));
+			this.set_id(c.getInt(c.getColumnIndex(NOMPDataContract.Ticket._ID)));
 
 			this.setName(c.getString(c
 					.getColumnIndex(NOMPDataContract.Ticket.COLUMN_NAME_NAME)));
@@ -481,12 +569,23 @@ public abstract class Ticket extends BaseModel {
 			this.setMatched(c.getString(c
 					.getColumnIndex(NOMPDataContract.Ticket.COLUMN_NAME_MATCHED)));
 		}
-		
+
 		readable.close();
 		return c;
 	}
+	
+	public int deleteAll() {
+		SQLiteDatabase writable = this.getWritableDatabase();
+		int nbLines = writable.delete(getTableName(), "1", null);
+
+		writable.close();
+		return nbLines;
+	}
 
 	public abstract String getTableName();
+
+	// budget or cost, implemented in Need/Offer
+	public abstract int getPrice();
 
 	/*
 	 * Getters and setters

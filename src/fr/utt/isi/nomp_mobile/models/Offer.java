@@ -1,15 +1,23 @@
 package fr.utt.isi.nomp_mobile.models;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
+import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 public class Offer extends Ticket {
 
@@ -134,6 +142,11 @@ public class Offer extends Ticket {
 	}
 
 	@Override
+	public int getPrice() {
+		return cost;
+	}
+
+	@Override
 	public long store() {
 		// build the content values for insert
 		ContentValues mContentValues = getBaseContentValues();
@@ -169,9 +182,13 @@ public class Offer extends Ticket {
 		// prepare the query
 		String query = "SELECT * FROM " + NOMPDataContract.Offer.TABLE_NAME;
 		if (isForMe) {
-			SharedPreferences userInfo = context.getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+			SharedPreferences userInfo = context.getSharedPreferences(
+					Config.PREF_NAME_USER, Context.MODE_PRIVATE);
 			if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
-				query += " WHERE user='" + userInfo.getString(Config.PREF_KEY_USER_NOMP_ID, "-1") + "'";
+				query += " WHERE user='"
+						+ userInfo
+								.getString(Config.PREF_KEY_USER_NOMP_ID, "-1")
+						+ "'";
 			}
 		}
 		query += " ORDER BY _id DESC";
@@ -292,6 +309,127 @@ public class Offer extends Ticket {
 
 		writable.close();
 		return nbLines;
+	}
+
+	public void apiGet() {
+		SharedPreferences userInfo = context.getSharedPreferences(
+				Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+		String userNompId = userInfo
+				.getString(Config.PREF_KEY_USER_NOMP_ID, "");
+
+		new RequestTask(context, "GET") {
+
+			@Override
+			public void onPostExecute(String result) {
+				if (result == null) {
+					Toast errorToast = Toast.makeText(context,
+							"Some error occurs during request.",
+							Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.MAL_FORMED_URL_EXCEPTION)) {
+					Toast errorToast = Toast.makeText(context,
+							"Request server not found.", Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.IO_EXCEPTION)) {
+					Toast errorToast = Toast
+							.makeText(
+									context,
+									"Unable to retrieve data from server. Please try again later.",
+									Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.REQUEST_ERROR)) {
+					Toast errorToast = Toast.makeText(context,
+							"Request failed.", Toast.LENGTH_LONG);
+					errorToast.show();
+				} else {
+
+					try {
+						JSONArray jsonArray = new JSONArray(result);
+						if (jsonArray.length() > 0) {
+							Offer[] offers = new Offer[jsonArray.length()];
+							for (int i = 0; i < jsonArray.length(); i++) {
+								// parse json object
+								JSONObject jsonObject = jsonArray
+										.getJSONObject(i);
+
+								offers[i] = parseJson(jsonObject);
+							}
+
+							// delete all data from database to simply avoid
+							// update/insert decisions
+							deleteAll();
+							offers = (Offer[]) insertAll(offers);
+						} else {
+							Toast errorToast = Toast.makeText(context,
+									"No available offers on server.",
+									Toast.LENGTH_LONG);
+							errorToast.show();
+						}
+					} catch (JSONException e) {
+						Toast errorToast = Toast.makeText(context,
+								"Failed to parse response from server.",
+								Toast.LENGTH_LONG);
+						errorToast.show();
+						e.printStackTrace();
+					}
+
+				}
+
+			}
+
+		}.execute(Config.NOMP_API_ROOT + "user/" + userNompId
+				+ "/offer/list?user_id=" + userNompId);
+	}
+
+	public Offer parseJson(JSONObject jsonObject) {
+		Offer offer = new Offer(context);
+		offer.setNompId(jsonObject.optString("_id"));
+		offer.setName(jsonObject.optString("name"));
+		offer.setClassification(jsonObject.optString("classification"));
+		offer.setClassificationName(jsonObject.optString("classification_name"));
+		offer.setSourceActorType(jsonObject.optString("source_actor_type"));
+		offer.setSourceActorTypeName(jsonObject
+				.optString("source_actor_type_name"));
+		offer.setTargetActorType(jsonObject.optString("target_actor_type"));
+		offer.setTargetActorTypeName(jsonObject
+				.optString("target_actor_type_name"));
+		offer.setContactPhone(jsonObject.optString("contact_phone"));
+		offer.setContactMobile(jsonObject.optString("contact_mobile"));
+		offer.setContactEmail(jsonObject.optString("contact_email"));
+		offer.setQuantity(Integer.parseInt(jsonObject.optString("quantity")));
+		offer.setDescription(jsonObject.optString("description"));
+		offer.setKeywords(jsonObject.optString("keywords"));
+		offer.setAddress(jsonObject.optString("address"));
+		offer.setGeometry(jsonObject.optString("geometry"));
+
+		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+		try {
+			offer.setCreationDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("creation_date"))));
+			offer.setEndDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("end_date"))));
+			offer.setStartDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("start_date"))));
+			offer.setExpirationDate(dateFormat.format(dateFormat
+					.parse(jsonObject.optString("expiration_date"))));
+			offer.setUpdateDate(dateFormat.format(dateFormat.parse(jsonObject
+					.optString("update_date"))));
+		} catch (ParseException e) {
+
+		}
+
+		// should be always true, or do
+		// jsonObject.optString("is_active").equals("true")
+		// ? true : false
+		offer.setActive(true);
+		offer.setStatut(Integer.parseInt(jsonObject.optString("statut")));
+		offer.setReference(jsonObject.optString("reference"));
+		offer.setUser(jsonObject.optString("user"));
+		offer.setMatched(jsonObject.optString("matched"));
+
+		offer.setCost(Integer.parseInt(jsonObject.optString("cost")));
+
+		return offer;
 	}
 
 	public int getCost() {
