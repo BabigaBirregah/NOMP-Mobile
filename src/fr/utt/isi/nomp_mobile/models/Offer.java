@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
-import fr.utt.isi.nomp_mobile.tasks.RequestTask;
+import fr.utt.isi.nomp_mobile.tasks.GetRequestTask;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -317,29 +317,14 @@ public class Offer extends Ticket {
 		String userNompId = userInfo
 				.getString(Config.PREF_KEY_USER_NOMP_ID, "");
 
-		new RequestTask(context, "GET") {
+		new GetRequestTask(context) {
 
 			@Override
 			public void onPostExecute(String result) {
 				if (result == null) {
 					Toast errorToast = Toast.makeText(context,
-							"Some error occurs during request.",
+							"Failed to request offers on server.",
 							Toast.LENGTH_LONG);
-					errorToast.show();
-				} else if (result.equals(RequestTask.MAL_FORMED_URL_EXCEPTION)) {
-					Toast errorToast = Toast.makeText(context,
-							"Request server not found.", Toast.LENGTH_LONG);
-					errorToast.show();
-				} else if (result.equals(RequestTask.IO_EXCEPTION)) {
-					Toast errorToast = Toast
-							.makeText(
-									context,
-									"Unable to retrieve data from server. Please try again later.",
-									Toast.LENGTH_LONG);
-					errorToast.show();
-				} else if (result.equals(RequestTask.REQUEST_ERROR)) {
-					Toast errorToast = Toast.makeText(context,
-							"Request failed.", Toast.LENGTH_LONG);
 					errorToast.show();
 				} else {
 
@@ -377,8 +362,7 @@ public class Offer extends Ticket {
 
 			}
 
-		}.execute(Config.NOMP_API_ROOT + "user/" + userNompId
-				+ "/offer/list?user_id=" + userNompId);
+		}.execute(Config.NOMP_API_ROOT + "user/" + userNompId + "/offer/list");
 	}
 
 	public Offer parseJson(JSONObject jsonObject) {

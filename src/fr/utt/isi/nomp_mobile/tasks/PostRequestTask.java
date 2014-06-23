@@ -12,14 +12,24 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
+import fr.utt.isi.nomp_mobile.config.Config;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -70,9 +80,46 @@ public abstract class PostRequestTask extends AsyncTask<String, Void, String> {
 			}
 			
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			
+			// cookies
+			CookieStore cookieStore = new BasicCookieStore();
+			
+			SharedPreferences userInfo = context.getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+			if (userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_NAME, null) != null && 
+					userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_VALUE, null) != null) {
+				
+				BasicClientCookie cookie = new BasicClientCookie(
+						userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_NAME, null), 
+						userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_VALUE, null)
+				);
+				
+				if (userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_DOMAIN, null) != null) {
+					cookie.setDomain(userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_DOMAIN, null));
+				}
+				
+				if (userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_PATH, null) != null) {
+					cookie.setPath(userInfo.getString(Config.PREF_KEY_USER_CONNECTION_COOKIE_PATH, null));
+				}
+				
+				cookieStore.addCookie(cookie);
+			}
+			
+			// request context with cookies
+		    HttpContext httpContext = new BasicHttpContext();
+		    httpContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 
 			// execute HTTP Post Request
-			HttpResponse response = httpclient.execute(httppost);
+			HttpResponse response = httpclient.execute(httppost, httpContext);
+			
+			Cookie cookie = cookieStore.getCookies().get(0);
+			if (cookie != null) {
+				Editor editor = userInfo.edit();
+				editor.putString(Config.PREF_KEY_USER_CONNECTION_COOKIE_NAME, cookie.getName());
+				editor.putString(Config.PREF_KEY_USER_CONNECTION_COOKIE_VALUE, cookie.getValue());
+				editor.putString(Config.PREF_KEY_USER_CONNECTION_COOKIE_DOMAIN, cookie.getDomain());
+				editor.putString(Config.PREF_KEY_USER_CONNECTION_COOKIE_PATH, cookie.getPath());
+				editor.commit();
+			}
 			
 			Log.d(TAG, "post response status=" + response.getStatusLine().getStatusCode());
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {

@@ -124,7 +124,7 @@ public abstract class Type extends BaseModel {
 		return this;
 	}
 
-	protected Cursor queryCursor(String query) {
+	public void checkUpdate() {
 		// check update
 		SharedPreferences typeSettings = null;
 		if (getType().equals(TYPE_CLASSIFICATION)) {
@@ -147,6 +147,10 @@ public abstract class Type extends BaseModel {
 				apiGet();
 			}
 		}
+	}
+
+	protected Cursor queryCursor(String query) {
+		checkUpdate();
 
 		SQLiteDatabase readable = this.getReadableDatabase();
 		Cursor c = readable.rawQuery(query, null);

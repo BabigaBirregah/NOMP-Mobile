@@ -328,6 +328,11 @@ public abstract class Ticket extends BaseModel {
 		this.user = user;
 		this.matched = matched;
 	}
+	
+	@Override
+	public String toString() {
+		return getTableName() + ": " + getBaseContentValues();
+	}
 
 	public Ticket[] insertAll(Ticket[] tickets) {
 		// open database writable connection
@@ -336,7 +341,7 @@ public abstract class Ticket extends BaseModel {
 		// prepare the insert query
 		String query = "INSERT INTO "
 				+ getTableName()
-				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, )";
+				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 		// compile the query
 		SQLiteStatement statement = writable.compileStatement(query);
