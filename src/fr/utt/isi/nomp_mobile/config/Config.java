@@ -30,6 +30,10 @@ public class Config {
 	public static final String PREF_KEY_USER_PASSWORD = "password";
 	public static final String PREF_KEY_USER_ACTOR_TYPE = "actor_type";
 	public static final String PREF_KEY_USER_ACTOR_TYPE_NAME = "actor_type_name";
+	public static final String PREF_KEY_USER_CONNECTION_COOKIE_NAME = "connection_cookie_name";
+	public static final String PREF_KEY_USER_CONNECTION_COOKIE_VALUE = "connection_cookie_value";
+	public static final String PREF_KEY_USER_CONNECTION_COOKIE_DOMAIN = "connection_cookie_domain";
+	public static final String PREF_KEY_USER_CONNECTION_COOKIE_PATH = "connection_cookie_path";
 	/* ******************************************************** */
 
 	private Config() {
