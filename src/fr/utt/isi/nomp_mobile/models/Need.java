@@ -135,6 +135,11 @@ public class Need extends Ticket {
 				isActive, statut, reference, user, matched);
 		this.budget = budget;
 	}
+	
+	@Override
+	public String getTicketType() {
+		return Ticket.TICKET_NEED;
+	}
 
 	@Override
 	public String getTableName() {
@@ -148,6 +153,12 @@ public class Need extends Ticket {
 
 	@Override
 	public long store() {
+		// check if the need is already in database
+		long existence = exists(this.nompId);
+		if (existence != -1) {
+			return existence;
+		}
+		
 		// build the content values for insert
 		ContentValues mContentValues = getBaseContentValues();
 		mContentValues.put(NOMPDataContract.Need.COLUMN_NAME_BUDGET, budget);
@@ -160,6 +171,21 @@ public class Need extends Ticket {
 		writable.close();
 		return _id;
 	}
+	
+	public Need retrieve(String ticketNompId) {
+		Cursor c = retrieveBase(ticketNompId);
+
+		if (c.moveToFirst()) {
+			this.setBudget(c.getInt(c
+					.getColumnIndex(NOMPDataContract.Need.COLUMN_NAME_BUDGET)));
+		} else {
+			return null;
+		}
+		
+		c.close();
+
+		return this;
+	}
 
 	@Override
 	public Need retrieve(long ticketId) {
@@ -168,7 +194,11 @@ public class Need extends Ticket {
 		if (c.moveToFirst()) {
 			this.setBudget(c.getInt(c
 					.getColumnIndex(NOMPDataContract.Need.COLUMN_NAME_BUDGET)));
+		} else {
+			return null;
 		}
+		
+		c.close();
 
 		return this;
 	}
@@ -380,7 +410,7 @@ public class Need extends Ticket {
 		need.setContactPhone(jsonObject.optString("contact_phone"));
 		need.setContactMobile(jsonObject.optString("contact_mobile"));
 		need.setContactEmail(jsonObject.optString("contact_email"));
-		need.setQuantity(Integer.parseInt(jsonObject.optString("quantity")));
+		need.setQuantity(Integer.parseInt(jsonObject.optString("quantity") == null ? "0" : jsonObject.optString("quantity")));
 		need.setDescription(jsonObject.optString("description"));
 		need.setKeywords(jsonObject.optString("keywords"));
 		need.setAddress(jsonObject.optString("address"));
@@ -411,7 +441,7 @@ public class Need extends Ticket {
 		need.setUser(jsonObject.optString("user"));
 		need.setMatched(jsonObject.optString("matched"));
 
-		need.setBudget(Integer.parseInt(jsonObject.optString("budget")));
+		need.setBudget(Integer.parseInt(jsonObject.optString("budget") == null ? "0" : jsonObject.optString("budget")));
 
 		return need;
 	}

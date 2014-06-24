@@ -95,6 +95,7 @@
 
     <!-- Text for action bar items -->
     <string name="text_ticket_form_send">Send ticket</string>
+    <string name="text_ticket_page_matched">View matched</string>
 
     <!-- Text for activity title -->
     <string name="title_activity_ticket_form">Post</string>
