@@ -6,9 +6,11 @@ import java.util.GregorianCalendar;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.database.NOMPDataContract;
 
 public abstract class Ticket extends BaseModel {
@@ -328,10 +330,38 @@ public abstract class Ticket extends BaseModel {
 		this.user = user;
 		this.matched = matched;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getTableName() + ": " + getBaseContentValues();
+	}
+	
+	public boolean isMine() {
+		SharedPreferences userInfo = context.getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+		String userNompId = userInfo.getString(Config.PREF_KEY_USER_NOMP_ID, null);
+		if (userNompId == null || userNompId.equals("") || this.user == null || this.user.equals("")) {
+			return false;
+		} else {
+			return this.user.equals(userNompId);
+		}
+	}
+
+	public long exists(String ticketNompId) {
+		// prepare the query
+		String query = "SELECT * FROM " + getTableName() + " WHERE nomp_id='"
+				+ ticketNompId + "' ORDER BY _id DESC LIMIT 1";
+
+		SQLiteDatabase readable = this.getReadableDatabase();
+		Cursor c = readable.rawQuery(query, null);
+
+		long ticketId = -1;
+		if (c.moveToFirst()) {
+			ticketId = c.getLong(c.getColumnIndex(NOMPDataContract.Ticket._ID));
+		}
+
+		readable.close();
+		
+		return ticketId;
 	}
 
 	public Ticket[] insertAll(Ticket[] tickets) {
@@ -495,14 +525,7 @@ public abstract class Ticket extends BaseModel {
 		return mContentValues;
 	}
 
-	protected Cursor retrieveBase(long ticketId) {
-		// prepare the query
-		String query = "SELECT * FROM " + getTableName() + " WHERE _id="
-				+ ticketId + " ORDER BY _id DESC LIMIT 1";
-
-		SQLiteDatabase readable = this.getReadableDatabase();
-		Cursor c = readable.rawQuery(query, null);
-
+	protected void setBaseAttributsByCursor(Cursor c) {
 		if (c.moveToFirst()) {
 			this.setNompId(c.getString(c
 					.getColumnIndex(NOMPDataContract.Ticket.COLUMN_NAME_NOMP_ID)));
@@ -574,11 +597,36 @@ public abstract class Ticket extends BaseModel {
 			this.setMatched(c.getString(c
 					.getColumnIndex(NOMPDataContract.Ticket.COLUMN_NAME_MATCHED)));
 		}
+	}
+
+	protected Cursor retrieveBase(String ticketNompId) {
+		// prepare the query
+		String query = "SELECT * FROM " + getTableName() + " WHERE nomp_id='"
+				+ ticketNompId + "' ORDER BY _id DESC LIMIT 1";
+
+		SQLiteDatabase readable = this.getReadableDatabase();
+		Cursor c = readable.rawQuery(query, null);
+
+		setBaseAttributsByCursor(c);
 
 		readable.close();
 		return c;
 	}
-	
+
+	protected Cursor retrieveBase(long ticketId) {
+		// prepare the query
+		String query = "SELECT * FROM " + getTableName() + " WHERE _id="
+				+ ticketId + " ORDER BY _id DESC LIMIT 1";
+
+		SQLiteDatabase readable = this.getReadableDatabase();
+		Cursor c = readable.rawQuery(query, null);
+
+		setBaseAttributsByCursor(c);
+
+		readable.close();
+		return c;
+	}
+
 	public int deleteAll() {
 		SQLiteDatabase writable = this.getWritableDatabase();
 		int nbLines = writable.delete(getTableName(), "1", null);
@@ -586,6 +634,8 @@ public abstract class Ticket extends BaseModel {
 		writable.close();
 		return nbLines;
 	}
+
+	public abstract String getTicketType();
 
 	public abstract String getTableName();
 

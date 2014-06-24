@@ -1,5 +1,6 @@
 package fr.utt.isi.nomp_mobile.activities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.utt.isi.nomp_mobile.R;
@@ -26,6 +27,8 @@ public class TicketListActivity extends ActionBarActivity implements
 	public static final String TAG = "TicketListActivity";
 
 	private String ticketType;
+	
+	private long[] ticketIds = null;
 
 	private List<?> ticketList;
 
@@ -39,12 +42,38 @@ public class TicketListActivity extends ActionBarActivity implements
 		Intent intent = getIntent();
 		ticketType = intent.getStringExtra("ticketType") == null ? Ticket.TICKET_NEED
 				: intent.getStringExtra("ticketType");
+		ticketIds = intent.getLongArrayExtra("ticketIds");
 
-		// get ticket list
-		if (ticketType.equals(Ticket.TICKET_OFFER)) {
-			ticketList = new Offer(this).list(true);
+		if (ticketIds != null) {
+			
+			// get tickets of specified ids
+			if (ticketType.equals(Ticket.TICKET_OFFER)) {
+				List<Offer> ticketList = new ArrayList<Offer>();
+				
+				for (int i = 0; i < ticketIds.length; i++) {
+					ticketList.add(new Offer(this).retrieve(ticketIds[i]));
+				}
+				
+				this.ticketList = ticketList;
+			} else {
+				List<Need> ticketList = new ArrayList<Need>();
+				
+				for (int i = 0; i < ticketIds.length; i++) {
+					ticketList.add(new Need(this).retrieve(ticketIds[i]));
+				}
+				
+				this.ticketList = ticketList;
+			}
+
 		} else {
-			ticketList = new Need(this).list(true);
+
+			// get all my ticket list
+			if (ticketType.equals(Ticket.TICKET_OFFER)) {
+				ticketList = new Offer(this).list(true);
+			} else {
+				ticketList = new Need(this).list(true);
+			}
+
 		}
 
 		// get ticket list view
@@ -93,7 +122,11 @@ public class TicketListActivity extends ActionBarActivity implements
 
 	@Override
 	public void onBackPressed() {
-		Intent intent = new Intent(this, AccountActivity.class);
-		startActivity(intent);
+		if (ticketIds == null) {
+			Intent intent = new Intent(this, AccountActivity.class);
+			startActivity(intent);
+		} else {
+			super.onBackPressed();
+		}
 	}
 }

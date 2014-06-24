@@ -135,6 +135,11 @@ public class Offer extends Ticket {
 				isActive, statut, reference, user, matched);
 		this.cost = cost;
 	}
+	
+	@Override
+	public String getTicketType() {
+		return Ticket.TICKET_OFFER;
+	}
 
 	@Override
 	public String getTableName() {
@@ -148,6 +153,12 @@ public class Offer extends Ticket {
 
 	@Override
 	public long store() {
+		// check if the offer is already in database
+		long existence = exists(this.nompId);
+		if (existence != -1) {
+			return existence;
+		}
+				
 		// build the content values for insert
 		ContentValues mContentValues = getBaseContentValues();
 		mContentValues.put(NOMPDataContract.Offer.COLUMN_NAME_COST, cost);
@@ -160,6 +171,21 @@ public class Offer extends Ticket {
 		writable.close();
 		return _id;
 	}
+	
+	public Offer retrieve(String ticketNompId) {
+		Cursor c = retrieveBase(ticketNompId);
+
+		if (c.moveToFirst()) {
+			this.setCost(c.getInt(c
+					.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_COST)));
+		} else {
+			return null;
+		}
+		
+		c.close();
+
+		return this;
+	}
 
 	@Override
 	public Offer retrieve(long ticketId) {
@@ -168,7 +194,11 @@ public class Offer extends Ticket {
 		if (c.moveToFirst()) {
 			this.setCost(c.getInt(c
 					.getColumnIndex(NOMPDataContract.Offer.COLUMN_NAME_COST)));
+		} else {
+			return null;
 		}
+		
+		c.close();
 
 		return this;
 	}
@@ -380,7 +410,7 @@ public class Offer extends Ticket {
 		offer.setContactPhone(jsonObject.optString("contact_phone"));
 		offer.setContactMobile(jsonObject.optString("contact_mobile"));
 		offer.setContactEmail(jsonObject.optString("contact_email"));
-		offer.setQuantity(Integer.parseInt(jsonObject.optString("quantity")));
+		offer.setQuantity(Integer.parseInt(jsonObject.optString("quantity") == null ? "0" : jsonObject.optString("quantity")));
 		offer.setDescription(jsonObject.optString("description"));
 		offer.setKeywords(jsonObject.optString("keywords"));
 		offer.setAddress(jsonObject.optString("address"));
@@ -411,7 +441,7 @@ public class Offer extends Ticket {
 		offer.setUser(jsonObject.optString("user"));
 		offer.setMatched(jsonObject.optString("matched"));
 
-		offer.setCost(Integer.parseInt(jsonObject.optString("cost")));
+		offer.setCost(Integer.parseInt(jsonObject.optString("cost") == null ? "0" : jsonObject.optString("cost")));
 
 		return offer;
 	}
