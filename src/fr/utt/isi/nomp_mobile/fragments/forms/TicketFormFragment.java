@@ -66,6 +66,7 @@ public abstract class TicketFormFragment extends Fragment {
 
 	protected static boolean isGPSChecked = true;
 
+	protected static String roadNumber = "";
 	protected static String road = "";
 	protected static String postalCode = "";
 	protected static String city = "";
@@ -198,6 +199,9 @@ public abstract class TicketFormFragment extends Fragment {
 									int which) {
 								AlertDialog dialogView = (AlertDialog) dialog;
 
+								roadNumber = ((EditText) dialogView
+										.findViewById(R.id.address_dialog_number))
+										.getText().toString();
 								road = ((EditText) dialogView
 										.findViewById(R.id.address_dialog_road))
 										.getText().toString();
@@ -212,7 +216,7 @@ public abstract class TicketFormFragment extends Fragment {
 										.getText().toString();
 
 								((EditText) getActivity().findViewById(
-										R.id.location)).setText(road + ", "
+										R.id.location)).setText(roadNumber + " " + road + ", "
 										+ postalCode + " " + city + ", "
 										+ country);
 								dialog.dismiss();
