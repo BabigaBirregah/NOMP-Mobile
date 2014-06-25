@@ -1,5 +1,7 @@
 package fr.utt.isi.nomp_mobile.fragments.pages;
 
+import java.util.ArrayList;
+
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.activities.TicketListActivity;
 import fr.utt.isi.nomp_mobile.models.ActorType;
@@ -143,14 +145,18 @@ public abstract class TicketPageFragment extends Fragment {
 			ticket = getTicket(ticket.get_id());
 			
 			if (ticket != null) {
-				if (ticket.getMatched() != null && !ticket.getMatched().equals("")) {
+				if (ticket.getMatched() != null && !ticket.getMatched().equals("") && !!ticket.getMatched().equals("[]")) {
 					String[] matchedParts = ticket.getMatched().split(",");
 					int length = matchedParts.length;
 					
-					long[] matchedTicketIds = new long[length];
+					ArrayList<Long> matchedIdList = new ArrayList<Long>();
 					for (int i = 0; i < length; i++) {
-						matchedTicketIds[i] = Long.parseLong(matchedParts[i]);
+						if (!matchedParts[i].equals("[]")) {
+							matchedIdList.add(Long.parseLong(matchedParts[i]));
+						}
 					}
+					Long[] matchedTicketIds = new Long[matchedIdList.size()];
+					matchedTicketIds = matchedIdList.toArray(matchedTicketIds);
 					
 					Intent intent = new Intent(getActivity(), TicketListActivity.class);
 					

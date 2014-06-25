@@ -51,6 +51,7 @@
 
     <!-- Text for address dialog -->
     <string name="text_address_dialog_title">Enter address</string>
+    <string name="text_hint_number">Number</string>
     <string name="text_hint_road">Road name</string>
     <string name="text_hint_postal_code">Postal code</string>
     <string name="text_hint_city">City</string>

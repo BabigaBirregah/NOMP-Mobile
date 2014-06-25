@@ -3,6 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+    
+    <EditText
+        android:id="@+id/address_dialog_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/text_hint_number"
+        android:inputType="text" >
+    </EditText>
 
     <EditText
         android:id="@+id/address_dialog_road"
