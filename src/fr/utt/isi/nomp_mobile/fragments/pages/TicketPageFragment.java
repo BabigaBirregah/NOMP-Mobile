@@ -1,5 +1,7 @@
 package fr.utt.isi.nomp_mobile.fragments.pages;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import fr.utt.isi.nomp_mobile.R;
@@ -104,7 +106,12 @@ public abstract class TicketPageFragment extends Fragment {
 			// location (address)
 			TextView locationView = (TextView) view
 					.findViewById(R.id.ticket_location);
-			locationView.setText(ticket.getAddress()); // TODO: integrate map
+			try {
+				locationView.setText(URLDecoder.decode(ticket.getAddress(), "ISO-8859-1"));
+			} catch (UnsupportedEncodingException e) {
+				locationView.setText(ticket.getAddress());
+			}
+			// TODO: integrate map
 
 			// from to
 			TextView periodView = (TextView) view

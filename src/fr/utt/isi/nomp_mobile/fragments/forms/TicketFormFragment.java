@@ -43,6 +43,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -77,6 +78,12 @@ public abstract class TicketFormFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		roadNumber = "";
+		road = "";
+		postalCode = "";
+		city = "";
+		country = "";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -216,9 +223,9 @@ public abstract class TicketFormFragment extends Fragment {
 										.getText().toString();
 
 								((EditText) getActivity().findViewById(
-										R.id.location)).setText(roadNumber + " " + road + ", "
-										+ postalCode + " " + city + ", "
-										+ country);
+										R.id.location)).setText(roadNumber
+										+ " " + road + ", " + postalCode + " "
+										+ city + ", " + country);
 								dialog.dismiss();
 							}
 
@@ -308,7 +315,8 @@ public abstract class TicketFormFragment extends Fragment {
 			@Override
 			public void onLocationChanged(Location location) {
 				if (location != null) {
-					populateAddressByLocation(location);
+					// populateAddressByLocation(location);
+					populateAddressByLocationAndNominatim(location);
 					populateGeometryByLocation(location);
 				}
 			}
@@ -352,7 +360,8 @@ public abstract class TicketFormFragment extends Fragment {
 		if (lastKnownLocation != null) {
 			// Log.d(TAG, "lat=" + lastKnownLocation.getLatitude() + ", lon=" +
 			// lastKnownLocation.getLongitude());
-			populateAddressByLocation(lastKnownLocation);
+			// populateAddressByLocation(lastKnownLocation);
+			populateAddressByLocationAndNominatim(lastKnownLocation);
 			populateGeometryByLocation(lastKnownLocation, view);
 		}
 
@@ -375,6 +384,67 @@ public abstract class TicketFormFragment extends Fragment {
 				.findViewById(R.id.geometry) : view.findViewById(R.id.geometry));
 		geometryView.setText(location.getLatitude() + ","
 				+ location.getLongitude());
+	}
+
+	protected void populateAddressByLocationAndNominatim(Location location) {
+		if (location == null) {
+			return;
+		}
+
+		new RequestTask(getActivity(), "GET") {
+
+			@Override
+			public void onPostExecute(String result) {
+				if (result == null) {
+					Toast errorToast = Toast.makeText(getActivity(),
+							"Some error occurs during request for address.",
+							Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.MAL_FORMED_URL_EXCEPTION)) {
+					Toast errorToast = Toast.makeText(getActivity(),
+							"Request server not found for address.",
+							Toast.LENGTH_LONG);
+					errorToast.show();
+				} else if (result.equals(RequestTask.IO_EXCEPTION)) {
+					Toast errorToast = Toast
+							.makeText(
+									getActivity(),
+									"Unable to retrieve address from server. Please try again later.",
+									Toast.LENGTH_LONG);
+					errorToast.show();
+				} else {
+					try {
+						Log.d(TAG, "nominatim: " + result);
+						JSONObject jsonObject = new JSONObject(result);
+
+						// get the formatted address
+						EditText addressView = (EditText) getActivity()
+								.findViewById(R.id.location);
+						addressView.setText(jsonObject
+								.optString("display_name"));
+
+						if (jsonObject.has("address")) {
+							JSONObject addressComponentObject = jsonObject
+									.optJSONObject("address");
+							road = addressComponentObject.optString("road");
+							postalCode = addressComponentObject
+									.optString("postcode");
+							city = addressComponentObject.optString("village");
+							country = addressComponentObject
+									.optString("country");
+						}
+					} catch (JSONException e) {
+						Toast errorToast = Toast.makeText(getActivity(),
+								"Failed to parse response from server.",
+								Toast.LENGTH_LONG);
+						errorToast.show();
+					}
+				}
+			}
+
+		}.execute("http://nominatim.openstreetmap.org/reverse?format=json&lat="
+				+ location.getLatitude() + "&lon=" + location.getLongitude()
+				+ "&zoom=18&addressdetails=1");
 	}
 
 	protected void populateAddressByLocation(Location location) {
@@ -665,7 +735,7 @@ public abstract class TicketFormFragment extends Fragment {
 
 		String classification = classificationItem.getNompId();
 		String classificationName = classificationItem.getName();
-		
+
 		// get sub target actor type spinner
 		Spinner subTargetSpinner = (Spinner) context
 				.findViewById(R.id.spinner_sub_target);
@@ -688,7 +758,8 @@ public abstract class TicketFormFragment extends Fragment {
 
 		// Dates
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd",
+				Locale.US);
 		Button buttonPeriodFrom = (Button) context
 				.findViewById(R.id.button_period_from);
 		String startDate = (String) buttonPeriodFrom.getText();
@@ -724,7 +795,7 @@ public abstract class TicketFormFragment extends Fragment {
 			quantityString = "0";
 		}
 		int quantity = Integer.parseInt(quantityString);
-		
+
 		// info about user
 		String user = null;
 		String sourceActorType = "s1d2f3";
@@ -732,12 +803,15 @@ public abstract class TicketFormFragment extends Fragment {
 		String contactPhone = "";
 		String contactMobile = "";
 		String contactEmail = "yipeng.huang@utt.fr";
-		
-		SharedPreferences userInfo = getActivity().getSharedPreferences(Config.PREF_NAME_USER, Context.MODE_PRIVATE);
+
+		SharedPreferences userInfo = getActivity().getSharedPreferences(
+				Config.PREF_NAME_USER, Context.MODE_PRIVATE);
 		if (userInfo.getBoolean(Config.PREF_KEY_USER_IS_LOGGED, false)) {
 			user = userInfo.getString(Config.PREF_KEY_USER_NOMP_ID, null);
-			sourceActorType = userInfo.getString(Config.PREF_KEY_USER_ACTOR_TYPE, null);
-			sourceActorTypeName = userInfo.getString(Config.PREF_KEY_USER_ACTOR_TYPE_NAME, null);
+			sourceActorType = userInfo.getString(
+					Config.PREF_KEY_USER_ACTOR_TYPE, null);
+			sourceActorTypeName = userInfo.getString(
+					Config.PREF_KEY_USER_ACTOR_TYPE_NAME, null);
 			contactPhone = "";
 			contactMobile = "";
 			contactEmail = userInfo.getString(Config.PREF_KEY_USER_EMAIL, null);
