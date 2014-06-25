@@ -3,6 +3,7 @@ package fr.utt.isi.nomp_mobile.fragments.forms;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -683,11 +684,12 @@ public abstract class TicketFormFragment extends Fragment {
 
 		// Dates
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 		Button buttonPeriodFrom = (Button) context
 				.findViewById(R.id.button_period_from);
 		String startDate = (String) buttonPeriodFrom.getText();
 		try {
-			startDate = dateFormat.format(dateFormat.parse(startDate));
+			startDate = dateFormatter.format(dateFormat.parse(startDate));
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return null;
@@ -697,7 +699,7 @@ public abstract class TicketFormFragment extends Fragment {
 				.findViewById(R.id.button_period_to);
 		String endDate = (String) buttonPeriodTo.getText();
 		try {
-			endDate = dateFormat.format(dateFormat.parse(endDate));
+			endDate = dateFormatter.format(dateFormat.parse(endDate));
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return null;
@@ -737,7 +739,6 @@ public abstract class TicketFormFragment extends Fragment {
 			contactEmail = userInfo.getString(Config.PREF_KEY_USER_EMAIL, null);
 		}
 
-		boolean isActive = true;
 		int statut = Status.OPEN;
 		String reference = null;
 		String matched = null;
@@ -763,7 +764,7 @@ public abstract class TicketFormFragment extends Fragment {
 		baseValues.put("quantity", quantity);
 		baseValues.put("geometry", geometry);
 		baseValues.put("address", address);
-		baseValues.put("is_active", isActive);
+		baseValues.put("is_active", 1);
 		baseValues.put("statut", statut);
 		baseValues.put("reference", reference);
 		baseValues.put("user", user);

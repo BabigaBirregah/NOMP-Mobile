@@ -76,7 +76,7 @@ public abstract class PostRequestTask extends AsyncTask<String, Void, String> {
 			Iterator<Entry<String, Object>> i = valueSet.iterator();
 			while (i.hasNext()) {
 				Entry<String, Object> valueEntry = i.next();
-				nameValuePairs.add(new BasicNameValuePair(valueEntry.getKey(), (String) valueEntry.getValue()));
+				nameValuePairs.add(new BasicNameValuePair(valueEntry.getKey(), "" + valueEntry.getValue()));
 			}
 			
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));

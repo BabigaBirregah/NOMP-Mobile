@@ -1,8 +1,10 @@
 package fr.utt.isi.nomp_mobile.fragments.forms;
 
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,13 +13,12 @@ import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.activities.TicketPageActivity;
 import fr.utt.isi.nomp_mobile.config.Config;
 import fr.utt.isi.nomp_mobile.models.Offer;
+import fr.utt.isi.nomp_mobile.tasks.GetRequestTask;
 import fr.utt.isi.nomp_mobile.tasks.PostRequestTask;
-import fr.utt.isi.nomp_mobile.tasks.RequestTask;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,35 +53,42 @@ public class OfferFormFragment extends TicketFormFragment {
 		}
 
 		// build dates
-		Calendar currentCalendar = new GregorianCalendar();
-		String creationDate = DateFormat.getDateInstance(
-				DateFormat.MEDIUM).format(currentCalendar.getTime());
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+		String creationDate = dateFormatter.format(new Date());
 		String updateDate = creationDate;
-		currentCalendar.add(Calendar.MONTH, 3);
-		String expirationDate = DateFormat.getDateInstance(
-				DateFormat.MEDIUM).format(currentCalendar.getTime());
+		String expirationDate = baseValues.getAsString("end_date");
 
-		// get budget
+		// get cost
 		EditText costView = (EditText) getActivity().findViewById(R.id.price);
 		int cost = Integer.parseInt(costView.getText().toString());
 
 		// clean the key/values to prepare for POST
 		// add fields
+		baseValues.put("ticket_type", "offer");
 		baseValues.put("creation_date", creationDate);
 		baseValues.put("expiration_date", expirationDate);
 		baseValues.put("update_date", updateDate);
 		baseValues.put("cost", cost);
+		
+		// classification json string
+		String classificationJsonString = "{\"id\":\"" + baseValues.getAsString("classification") + "\",\"name\":\"" + baseValues.getAsString("classification_name") + "\"}";
+		baseValues.put("classification", classificationJsonString);
+		
+		// target actor type json string
+		String targetJsonString = "{\"id\":\"" + baseValues.getAsString("target_actor_type") + "\",\"name\":\"" + baseValues.getAsString("target_actor_type_name") + "\"}";
+		baseValues.put("target_actor_type", targetJsonString);
 
 		// remove unexpected fields
 		baseValues.remove("keywords");
 		baseValues.remove("reference");
 		baseValues.remove("matched");
+		baseValues.remove("contact_phone");
+		baseValues.remove("contact_email");
 
 		// build JSON string for geometry
 		String[] latlon = baseValues.getAsString("geometry").split(",");
 		baseValues.put("geometry", "{\"lat\":" + latlon[0] + ",\"lon\":"
 				+ latlon[1] + "}");
-		Log.d(TAG, "content for post: " + baseValues);
 
 		loading = new ProgressDialog(getActivity());
 		loading.setTitle("Loading");
@@ -91,49 +99,56 @@ public class OfferFormFragment extends TicketFormFragment {
 
 			@Override
 			protected void onPostExecute(String response) {
-				// TODO: parse response
-				String offerNompId = "";
+				Pattern p = Pattern.compile("<a href=\"/offer/matching/([^\"<>]+)\">Matching");
+				Matcher m = p.matcher(response);
+				
+				if (m.find()) {
+					String offerNompId = m.group(1);
+					
+					new GetRequestTask(getContext()) {
 
-				new RequestTask(getContext(), "GET") {
+						@Override
+						public void onPostExecute(String result) {
+							try {
+								// parse result as json object
+								JSONObject jsonObject = new JSONObject(result);
 
-					@Override
-					public void onPostExecute(String result) {
-						try {
-							// parse result as json object
-							JSONObject jsonObject = new JSONObject(result);
+								// parse json object as offer object
+								Offer offer = new Offer(getContext())
+										.parseJson(jsonObject);
 
-							// parse json object as offer object
-							Offer offer = new Offer(getContext())
-									.parseJson(jsonObject);
+								// store offer in database
+								long offerId = offer.store();
 
-							// store offer in database
-							long offerId = offer.store();
-
-							if (offerId != -1) {
-								displayTicket(offerId);
-							} else {
-								Toast errorToast = Toast
-										.makeText(
-												getActivity(),
-												"An error occured while adding ticket. Please check your information.",
-												Toast.LENGTH_LONG);
+								if (offerId != -1) {
+									displayTicket(offerId);
+								} else {
+									Toast errorToast = Toast
+											.makeText(
+													getActivity(),
+													"An error occured while adding ticket. Please check your information.",
+													Toast.LENGTH_LONG);
+									errorToast.show();
+								}
+							} catch (JSONException e) {
+								Toast errorToast = Toast.makeText(getContext(),
+										"Failed to parse response from server.",
+										Toast.LENGTH_LONG);
 								errorToast.show();
-							}
-						} catch (JSONException e) {
-							Toast errorToast = Toast.makeText(getContext(),
-									"Failed to parse response from server.",
-									Toast.LENGTH_LONG);
-							errorToast.show();
-							e.printStackTrace();
-						} finally {
-							if (loading != null) {
-								loading.dismiss();
+								e.printStackTrace();
+							} finally {
+								if (loading != null) {
+									loading.dismiss();
+								}
 							}
 						}
-					}
 
-				}.execute(Config.NOMP_API_ROOT + "offer/" + offerNompId
-						+ "/json");
+					}.execute(Config.NOMP_API_ROOT + "offer/" + offerNompId
+							+ "/json");
+				} else {
+					Toast errorToast = Toast.makeText(getActivity(), "Cannot create offer", Toast.LENGTH_SHORT);
+					errorToast.show();
+				}
 
 			}
 
