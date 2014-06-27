@@ -104,6 +104,7 @@
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="title_activity_account">My Account</string>
     <string name="title_activity_ticket_list">My Tickets</string>
+    <string name="title_activity_matched_ticket_list">Matched Tickets</string>
 
     <!-- Text for exit -->
     <string name="press_once_again_to_exit">Press once again to exit</string>

@@ -2,7 +2,6 @@ package fr.utt.isi.nomp_mobile.fragments.pages;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 
 import fr.utt.isi.nomp_mobile.R;
 import fr.utt.isi.nomp_mobile.activities.TicketListActivity;
@@ -152,18 +151,21 @@ public abstract class TicketPageFragment extends Fragment {
 			ticket = getTicket(ticket.get_id());
 			
 			if (ticket != null) {
-				if (ticket.getMatched() != null && !ticket.getMatched().equals("") && !!ticket.getMatched().equals("[]")) {
+				if (ticket.getMatched() != null && !ticket.getMatched().equals("") && !ticket.getMatched().equals("[]")) {
 					String[] matchedParts = ticket.getMatched().split(",");
 					int length = matchedParts.length;
+					long[] matchedTicketIds = new long[length];
 					
-					ArrayList<Long> matchedIdList = new ArrayList<Long>();
+					// initialize this collection to all -1 to avoid eventual malformed parsing results
+					for (int i = 0; i < length; i++) {
+						matchedTicketIds[i] = -1;
+					}
+					
 					for (int i = 0; i < length; i++) {
 						if (!matchedParts[i].equals("[]")) {
-							matchedIdList.add(Long.parseLong(matchedParts[i]));
+							matchedTicketIds[i] = Long.parseLong(matchedParts[i]);
 						}
 					}
-					Long[] matchedTicketIds = new Long[matchedIdList.size()];
-					matchedTicketIds = matchedIdList.toArray(matchedTicketIds);
 					
 					Intent intent = new Intent(getActivity(), TicketListActivity.class);
 					

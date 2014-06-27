@@ -45,13 +45,17 @@ public class TicketListActivity extends ActionBarActivity implements
 		ticketIds = intent.getLongArrayExtra("ticketIds");
 
 		if (ticketIds != null) {
+
+			setTitle(getString(R.string.title_activity_matched_ticket_list));
 			
 			// get tickets of specified ids
 			if (ticketType.equals(Ticket.TICKET_OFFER)) {
 				List<Offer> ticketList = new ArrayList<Offer>();
 				
 				for (int i = 0; i < ticketIds.length; i++) {
-					ticketList.add(new Offer(this).retrieve(ticketIds[i]));
+					if (ticketIds[i] != -1) {
+						ticketList.add(new Offer(this).retrieve(ticketIds[i]));
+					}
 				}
 				
 				this.ticketList = ticketList;
@@ -59,13 +63,17 @@ public class TicketListActivity extends ActionBarActivity implements
 				List<Need> ticketList = new ArrayList<Need>();
 				
 				for (int i = 0; i < ticketIds.length; i++) {
-					ticketList.add(new Need(this).retrieve(ticketIds[i]));
+					if (ticketIds[i] != -1) {
+						ticketList.add(new Need(this).retrieve(ticketIds[i]));
+					}
 				}
 				
 				this.ticketList = ticketList;
 			}
 
 		} else {
+
+			setTitle(getString(R.string.title_activity_ticket_list));
 
 			// get all my ticket list
 			if (ticketType.equals(Ticket.TICKET_OFFER)) {
