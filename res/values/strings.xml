@@ -69,6 +69,7 @@
     <string name="text_label_my_offers">My offers</string>
     <string name="text_label_settings">SETTINGS</string>
     <string name="text_label_my_settings">My settings</string>
+    <string name="action_logout">Logout</string>
 
     <!-- Error message for login -->
     <string name="error_incorrect_email">Incorrect email address</string>

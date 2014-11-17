@@ -35,6 +35,7 @@ public class MainActivity extends ActionBarActivity {
 		} else {
 			// user has not logged yet, turn to login page
 			intent = new Intent(this, LoginActivity.class);
+			intent.putExtra("force", true);
 		}
 
 		// start the login activity

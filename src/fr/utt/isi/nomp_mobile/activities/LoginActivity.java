@@ -108,6 +108,13 @@ public class LoginActivity extends ActionBarActivity {
 					}
 				});
 	}
+	
+	@Override
+	public void onBackPressed() {
+		if (!getIntent().getBooleanExtra("force", false)) {
+			super.onBackPressed();
+		}
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
