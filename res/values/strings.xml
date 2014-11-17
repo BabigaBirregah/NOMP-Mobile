@@ -94,6 +94,7 @@
     
     <!-- Text for ticket list -->
     <string name="text_label_creation_date">Posted at </string>
+    <string name="action_reset">Reset all</string>
 
     <!-- Text for action bar items -->
     <string name="text_ticket_form_send">Send ticket</string>
